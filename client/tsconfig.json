@@ -1,0 +1,19 @@
+{
+  "files": [],
+  "references": [
+    { "path": "./tsconfig.app.json" },
+    { "path": "./tsconfig.node.json" }
+  ],
+  "compilerOptions": {
+    "types": ["node"],
+    "jsx": "react-jsx",
+    "allowJs": true,
+    "allowUnusedLabels": true,
+    "noUnusedLocals": false,        // Ignore unused variables in the TypeScript build
+    "noUnusedParameters": false,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "strict": true
+    // other options
+  }
+}
