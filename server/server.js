@@ -10,7 +10,7 @@ const app = express();
 
 // Middleware
 app.use(express.json());
-// Middleware
+app.use(express.urlencoded({ extended: true }));
 // Enable CORS for all origins or specify frontend URL
 const corsOptions = {
     origin: process.env.FRONTEND_URL, // Adjust this based on where your frontend is hosted
