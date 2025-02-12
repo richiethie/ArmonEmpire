@@ -152,7 +152,6 @@ const Members = () => {
                                                     <option value="Red Wine">Red Wine</option>
                                                     <option value="White Wine">White Wine</option>
                                                     <option value="Champagne">Champagne</option>
-                                                    <option value="Beer">Beer</option>
                                                 </select>
 
                                                 {isEditing ? (

@@ -40,4 +40,39 @@ router.get("/", verifyToken, async (req, res) => {
     }
 });
 
+router.post('/acuity-webhook', async (req, res) => {
+    const appointmentData = req.body;
+  
+    try {
+      // Find the user by the client_id in the webhook data
+      const user = await User.findOne({ acuityClientId: appointmentData.client_id }); // Assuming acuityClientId exists in your User model
+      if (!user) {
+        return res.status(404).send('User not found');
+      }
+  
+      // Create a new appointment using the webhook data
+      const newAppointment = new Appointment({
+        clientId: appointmentData.client_id,
+        datetime: appointmentData.datetime,
+        service: appointmentData.service,
+        duration: appointmentData.duration,
+        status: appointmentData.status,
+        // Map other fields as necessary from the webhook
+      });
+  
+      // Save the new appointment to the database
+      await newAppointment.save();
+  
+      // Add the new appointment to the user's appointments array
+      user.appointments.push(newAppointment._id);
+      await user.save();
+  
+      // Send a response confirming that the webhook has been processed successfully
+      res.status(200).send('Appointment created and linked to user');
+    } catch (error) {
+      console.error('Error processing Acuity webhook:', error);
+      res.status(500).send('Error processing webhook');
+    }
+  });
+
 module.exports = router;

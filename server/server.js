@@ -10,7 +10,17 @@ const app = express();
 
 // Middleware
 app.use(express.json());
-app.use(cors());
+// Middleware
+// Enable CORS for all origins or specify frontend URL
+const corsOptions = {
+    origin: process.env.FRONTEND_URL, // Adjust this based on where your frontend is hosted
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true,
+};
+app.use(cors(corsOptions));
+// Handle preflight requests
+app.options('*', cors(corsOptions));
 
 app.use("/api/auth", authRoutes);
 app.use("/api/user", userRoutes);

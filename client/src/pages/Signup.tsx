@@ -4,6 +4,8 @@ import { useNavigate } from "react-router-dom";
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
 import { useAuth } from "@/context/AuthContext";  // Assuming your AuthContext is set up
+import PhoneInput from 'react-phone-number-input';
+import 'react-phone-number-input/style.css'; // Import styles
 
 const Signup = () => {
   const navigate = useNavigate();
@@ -13,16 +15,24 @@ const Signup = () => {
     firstName: "",
     lastName: "",
     email: "",
+    phoneNumber: "",
     password: "",
     confirmPassword: "",
   });
 
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [value, setValue] = useState<string | undefined>('');
 
   // Handle input change
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handlePhoneNumberChange = (value: string | undefined) => {
+    // Remove the leading country code (+1) if it exists
+  
+    setFormData({ ...formData, phoneNumber: value ?? '' });
   };
 
   // Handle form submission
@@ -34,6 +44,7 @@ const Signup = () => {
       setError("Passwords do not match!");
       return;
     }
+    console.log(formData);
 
     try {
       setLoading(true);
@@ -42,10 +53,12 @@ const Signup = () => {
         firstName: formData.firstName,
         lastName: formData.lastName,
         email: formData.email,
+        phoneNumber: formData.phoneNumber,
         password: formData.password,
       });
 
       if (response.status === 201) {
+        
         // On successful signup, log the user in using the returned token
         login({ user: response.data.user, token: response.data.token });
 
@@ -111,6 +124,20 @@ const Signup = () => {
               />
             </div>
 
+            {/* Phone Number */}
+            <div>
+              <label className="block text-sm font-medium mb-1">Phone Number</label>
+              <PhoneInput
+                international={false}
+                defaultCountry="US"
+                value={formData.phoneNumber}
+                onChange={handlePhoneNumberChange}
+                className="w-full px-4 py-2 rounded-md bg-charcoal border border-steelGray focus:border-orange-300 outline-none"
+                placeholder="Enter your phone number"
+                required
+              />
+            </div>
+
             {/* Password */}
             <div>
               <label className="block text-sm font-medium mb-1">Password</label>
@@ -142,7 +169,7 @@ const Signup = () => {
             {/* Submit Button */}
             <button
               type="submit"
-              className="w-full bg-orange-300 text-black font-semibold py-3 rounded-md hover:bg-orange-500 transition"
+              className="w-full bg-orange-300 cursor-pointer text-black font-semibold py-3 rounded-md hover:bg-orange-500 transition"
               disabled={loading}
             >
               {loading ? "Signing Up..." : "Sign Up"}

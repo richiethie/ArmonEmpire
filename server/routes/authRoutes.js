@@ -8,39 +8,45 @@ const router = express.Router();
 // Register User
 router.post("/signup", async (req, res) => {
     try {
-      const { firstName, lastName, email, password, membership } = req.body;
+        let { firstName, lastName, email, phoneNumber, password, membership } = req.body;
+
+        // Trim "+1" from the beginning of the phone number if it exists
+        if (phoneNumber.startsWith("+1")) {
+            phoneNumber = phoneNumber.slice(2); // Remove the first two characters ("+1")
+        }
   
-      // Check if user exists
-      let user = await User.findOne({ email });
-      if (user) return res.status(400).json({ message: "User already exists" });
-  
-      // Hash password
-      const salt = await bcrypt.genSalt(10);
-      const hashedPassword = await bcrypt.hash(password, salt);
-  
-      // Create user
-      user = new User({ firstName, lastName, email, password: hashedPassword, membership });
-      await user.save();
-  
-      // Generate JWT token
-      const token = jwt.sign(
-        { id: user._id, email: user.email },
-        process.env.JWT_SECRET,  // Ensure you have your JWT secret in an environment variable
-        { expiresIn: "1h" } // Set expiration time for the token (1 hour here)
-      );
-  
-      // Send response with user data and token
-      res.status(201).json({
-        message: "User registered successfully",
-        user: {
-          id: user._id,
-          firstName: user.firstName,
-          lastName: user.lastName,
-          email: user.email,
-          membership: user.membership,
-        },
-        token, // Send the token back
-      });
+        // Check if user exists
+        let user = await User.findOne({ email });
+        if (user) return res.status(400).json({ message: "User already exists" });
+    
+        // Hash password
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(password, salt);
+    
+        // Create user
+        user = new User({ firstName, lastName, email, phoneNumber, password: hashedPassword, membership });
+        await user.save();
+    
+        // Generate JWT token
+        const token = jwt.sign(
+            { id: user._id, email: user.email },
+            process.env.JWT_SECRET,  // Ensure you have your JWT secret in an environment variable
+            { expiresIn: "1h" } // Set expiration time for the token (1 hour here)
+        );
+    
+        // Send response with user data and token
+        res.status(201).json({
+            message: "User registered successfully",
+            user: {
+            id: user._id,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            email: user.email,
+            phoneNumber: user.phoneNumber,
+            membership: user.membership,
+            },
+            token, // Send the token back
+        });
     } catch (err) {
       console.error(err);
       res.status(500).json({ message: "Server error" });

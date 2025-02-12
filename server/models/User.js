@@ -12,6 +12,7 @@ const UserSchema = new mongoose.Schema(
     drinkOfChoice: { type: String, default: "" },
     isOfLegalDrinkingAge: { type: Boolean, default: false },
     appointments: [{ type: mongoose.Schema.Types.ObjectId, ref: "Appointment" }],  // Reference to Appointment model
+    phoneNumber: { type: String, required: true, unique: true },
   },
   { timestamps: true }
 );

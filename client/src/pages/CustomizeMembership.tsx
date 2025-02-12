@@ -1,8 +1,11 @@
 import EmptyHeader from "@/components/EmptyHeader";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { haircuts } from "@/data/data";
 import whiskey from "../assets/video/whiskey.mp4"
 import { Checkbox } from "@/components/ui/checkbox";
+import { barbers } from "@/data/data";
+import axios from "axios";
+import { User } from "@/types/User";
 
 interface FormData {
   haircut: string;
@@ -14,32 +17,129 @@ interface FormData {
   appointments: Date[];
 }
 
-const CustomizeMembership = () => {
-  const [step, setStep] = useState<number>(1);
-  const [formData, setFormData] = useState<FormData>({
-    haircut: "",
-    wantsDrink: false,
-    dob: "",
-    photoID: null,
-    drinkOfChoice: "",
-    preferredBarber: "",
-    appointments: []
-  });
+// const iframe = document.querySelector("iframe");
+// const iframeDocument = iframe?.contentWindow?.document;
 
-  const nextStep = () => setStep((prev) => prev + 1);
-  const prevStep = () => setStep((prev) => prev - 1);
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
-  };
-  const handleCheckboxChange = () => {
-    setFormData({ ...formData, wantsDrink: !formData.wantsDrink });
-  };
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      setFormData({ ...formData, photoID: e.target.files[0] });
-    }
-  };
+const CustomizeMembership = () => {
+    const [step, setStep] = useState<number>(1);
+    const [member, setMember] = useState<User | null>(null);
+    const [formData, setFormData] = useState<FormData>({
+        haircut: "",
+        wantsDrink: false,
+        dob: "",
+        photoID: null,
+        drinkOfChoice: "",
+        preferredBarber: "",
+        appointments: []
+    });
+
+    const nextStep = () => setStep((prev) => prev + 1);
+    const prevStep = () => setStep((prev) => prev - 1);
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+        const { name, value } = e.target;
+        setFormData({ ...formData, [name]: value });
+    };
+
+    const handleCheckboxChange = () => {
+        setFormData({ ...formData, wantsDrink: !formData.wantsDrink });
+    };
+
+    const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files) {
+        setFormData({ ...formData, photoID: e.target.files[0] });
+        }
+    };
+
+    const isNextDisabled = formData.wantsDrink
+            ? !formData.dob || (parseInt(formData.dob) < 21 && !formData.photoID) || !formData.drinkOfChoice
+            : false; // If wantsDrink is false, next is always enabled
+
+    const getAge = (dob: string): number => {
+        if (!dob) return 0; // Handle empty case
+        const birthDate = new Date(dob);
+        const today = new Date();
+        
+        let age = today.getFullYear() - birthDate.getFullYear();
+        const monthDiff = today.getMonth() - birthDate.getMonth();
+        const dayDiff = today.getDate() - birthDate.getDate();
+    
+        // Adjust age if birthday hasn't occurred yet this year
+        if (monthDiff < 0 || (monthDiff === 0 && dayDiff < 0)) {
+            age--;
+        }
+    
+        return age;
+    };
+
+    useEffect(() => {
+        const fetchMemberData = async () => {
+            try {
+                const token = localStorage.getItem("token"); // Retrieve token from local storage
+                const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/user`, {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                });
+    
+                const data = response.data;
+    
+                setMember({
+                    _id: data._id || "",
+                    firstName: data.firstName || "",
+                    lastName: data.lastName || "",
+                    email: data.email || "",
+                    password: "", // Password should not be autofilled for security reasons
+                    membership: data.membership || "Free",
+                    preferredBarber: data.preferredBarber || "",
+                    drinkOfChoice: data.drinkOfChoice || "",
+                    isOfLegalDrinkingAge: data.isOfLegalDrinkingAge || false,
+                    appointments: data.appointments || [],
+                    phoneNumber: data.phoneNumber || "",
+                    dob: data.dob || "", // Keeping dob in case it's still needed
+                    photoID: null, // Files can't be preloaded, handle this separately
+                    wantsDrink: data.wantsDrink || false, // Assuming this is still relevant
+                });
+            } catch (error) {
+                console.error("Error fetching member data:", error);
+            }
+        };
+    
+        fetchMemberData();
+    }, []);
+    
+    //POTENTIAL COME BACK TO, REQUIRES ACUITY API ACCESS
+    // useEffect(() => {
+    //     if (member) {
+    //         console.log(member)
+    //         window.onload = function () {
+                
+    //             if (iframe) {
+                    
+    //                 console.log("FIRED1")
+
+    //                 if (iframeDocument) {
+    //                     // Get form fields inside iframe by id
+    //                     const firstNameField = iframeDocument.getElementById('client[firstName]') as HTMLInputElement;
+    //                     const lastNameField = iframeDocument.getElementById('client[lastName]') as HTMLInputElement;
+    //                     const emailField = iframeDocument.getElementById('client[email]') as HTMLInputElement;
+
+    //                     // Set the values if fields are found
+    //                     if (firstNameField && member.firstName) {
+    //                         firstNameField.value = member.firstName;
+    //                         console.log("FIRED")
+    //                     }
+    //                     if (lastNameField && member.lastName) {
+    //                         lastNameField.value = member.lastName;
+    //                     }
+    //                     if (emailField && member.email) {
+    //                         emailField.value = member.email;
+    //                     }
+    //                 }
+    //             }
+    //         };
+    //     }
+    // }, [iframeDocument]);
 
   return (
     <>
@@ -157,16 +257,35 @@ const CustomizeMembership = () => {
                                     />
                                 </div>
 
-                                {parseInt(formData.dob) >= 21 && (
+                                {getAge(formData.dob) >= 21 && (
                                     <div className="space-y-4">
                                         <div>
-                                            <label className={`block text-md mb-2 font-semibold ${ !formData.wantsDrink ? ("text-gray-400") : ("")}`}>Upload Photo ID:</label>
+                                            <label className={`block text-md mb-2 font-semibold ${!formData.wantsDrink ? "text-gray-400" : ""}`}>
+                                                Upload Photo ID:
+                                            </label>
+
+                                            <label
+                                                htmlFor="fileUpload"
+                                                className={`p-3 w-full rounded-md flex items-center justify-center cursor-pointer transition-all ${
+                                                    !formData.wantsDrink
+                                                        ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                                                        : "bg-orange-300 text-white hover:bg-orange-400"
+                                                }`}
+                                            >
+                                                Choose File
+                                            </label>
+
                                             <input
+                                                id="fileUpload"
                                                 type="file"
                                                 onChange={handleFileUpload}
-                                                className={`border p-3 w-full rounded-md ${ !formData.wantsDrink ? ("text-gray-400 border-gray-400") : ("")}`}
+                                                className="hidden" // Hides the default file input
                                                 disabled={!formData.wantsDrink}
                                             />
+
+                                            {formData.photoID && (
+                                                <p className="mt-2 text-sm text-gray-700">Selected: {formData.photoID.name}</p>
+                                            )}
                                         </div>
 
                                         <div>
@@ -179,9 +298,22 @@ const CustomizeMembership = () => {
                                                 disabled={!formData.wantsDrink}
                                             >
                                                 <option value="">Select a drink</option>
-                                                <option value="whiskey">Whiskey</option>
-                                                <option value="beer">Beer</option>
-                                                <option value="soda">Soda</option>
+                                                <option value="Water">Water</option>
+                                                <option value="Coca-Cola">Coca-Cola</option>
+                                                <option value="Pepsi">Pepsi</option>
+                                                <option value="Sprite">Sprite</option>
+                                                <option value="Whiskey">Whiskey</option>
+                                                <option value="Vodka">Vodka</option>
+                                                <option value="Rum">Rum</option>
+                                                <option value="Gin">Gin</option>
+                                                <option value="Tequila">Tequila</option>
+                                                <option value="Scotch">Scotch</option>
+                                                <option value="Bourbon">Bourbon</option>
+                                                <option value="Brandy">Brandy</option>
+                                                <option value="Cognac">Cognac</option>
+                                                <option value="Red Wine">Red Wine</option>
+                                                <option value="White Wine">White Wine</option>
+                                                <option value="Champagne">Champagne</option>
                                             </select>
                                         </div>
                                     </div>
@@ -208,9 +340,70 @@ const CustomizeMembership = () => {
                         >
                             Back
                         </button>
+
+                        <button
+                        onClick={nextStep}
+                        className={`px-8 py-3 rounded-lg transition-all font-bold text-xl ${
+                            isNextDisabled
+                            ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                            : "bg-orange-300 text-white hover:bg-orange-400"
+                        }`}
+                        disabled={isNextDisabled}
+                        >
+                        Next
+                        </button>
+                    </div>
+                </div>
+            )}
+
+            {step === 3 && (
+                <div className="flex flex-col items-center">
+                    <h1 className="text-6xl mb-6">Choose Your Barber</h1>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full h-full">
+                        {barbers.map((barber) => (
+                            <div
+                                key={barber.id}
+                                onClick={() => setFormData({ ...formData, preferredBarber: barber.id })}
+                                style={{ boxShadow: '0 0 15px rgba(255, 255, 255, 0.5)' }}
+                                className={`relative border-2 rounded-lg overflow-hidden cursor-pointer transition-all flex flex-col items-center h-[40rem] ${
+                                    formData.preferredBarber === barber.id ? "border-orange-300" : ""
+                                }`}
+                            >
+                                {/* Checkbox in top-right */}
+                                <div className="absolute top-2 right-2">
+                                    <Checkbox 
+                                        checked={formData.preferredBarber === barber.id} 
+                                        onCheckedChange={() => setFormData({ ...formData, preferredBarber: barber.id })} 
+                                        colorScheme="orange"
+                                    />
+                                </div>
+
+                                {/* Barber Image */}
+                                <img src={barber.image} alt={barber.name} className="w-[80%] mt-8 rounded-lg h-[30rem] object-cover" />
+
+                                {/* Barber Name */}
+                                <div className="p-4 mt-4 text-center text-3xl font-bold">{barber.name}</div>
+                            </div>
+                        ))}
+                    </div>
+
+                    <div className="absolute bottom-20 left-20 right-20 flex justify-between p-4 font-bold text-xl mx-auto">
+                        <button
+                            onClick={prevStep}
+                            className="bg-gray-400 cursor-pointer text-white px-8 py-3 rounded-lg transition-all hover:bg-gray-500"
+                        >
+                            Back
+                        </button>
+
                         <button
                             onClick={nextStep}
-                            className="bg-orange-300 text-white px-8 py-3 rounded-lg transition-all hover:bg-orange-400"
+                            className={`px-8 py-3 rounded-lg transition-all font-bold text-xl ${
+                                !formData.preferredBarber
+                                    ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                                    : "bg-orange-300 text-white hover:bg-orange-400 cursor-pointer"
+                            }`}
+                            disabled={!formData.preferredBarber} // Disable if no barber is selected
                         >
                             Next
                         </button>
@@ -218,32 +411,25 @@ const CustomizeMembership = () => {
                 </div>
             )}
 
-            {step === 3 && (
-                <div>
-                <h2 className="text-xl font-bold">Step 3: Choose Your Barber</h2>
-                <select name="preferredBarber" value={formData.preferredBarber} onChange={handleChange} className="border p-2 w-full">
-                    <option value="">Select a barber</option>
-                    <option value="barber1">Barber 1</option>
-                    <option value="barber2">Barber 2</option>
-                    <option value="barber3">Barber 3</option>
-                </select>
-                <div className="mt-4 flex justify-between">
-                    <button onClick={prevStep} className="bg-gray-400 text-white p-2">Back</button>
-                    <button onClick={nextStep} className="bg-blue-500 text-white p-2">Next</button>
-                </div>
-                </div>
-            )}
-
             {step === 4 && (
-                <div>
-                <h2 className="text-xl font-bold">Step 4: Book Initial Appointments</h2>
-                <p>Select dates for the next two months.</p>
-                {/* Placeholder for a calendar component */}
-                <input type="date" name="appointments" onChange={handleChange} className="border p-2 w-full" />
-                <div className="mt-4 flex justify-between">
-                    <button onClick={prevStep} className="bg-gray-400 text-white p-2">Back</button>
-                    <button onClick={nextStep} className="bg-blue-500 text-white p-2">Next</button>
-                </div>
+                <div className="flex flex-col items-center">
+                    <h1 className="text-6xl">Book Appointments</h1>
+                    <p>To begin your membership, you are required to book the next 2 months in advance.</p>
+                    <p>Select dates for the next two months.</p>
+                    
+                    {/* Acuity Scheduling Embedded Calendar */}
+                    <iframe 
+                        src="https://app.acuityscheduling.com/schedule.php?owner=26056634&calendarID=11548211&ref=embedded_csp" 
+                        title="Schedule Appointment" 
+                        width="60%" 
+                        height="1000" 
+                        frameBorder="0"
+                        className="rounded-lg"
+                    ></iframe>
+                    <script 
+                        src="https://embed.acuityscheduling.com/js/embed.js" 
+                        type="text/javascript"
+                    ></script>
                 </div>
             )}
 
