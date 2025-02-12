@@ -55,8 +55,7 @@ const Signup = () => {
         email: formData.email,
         phoneNumber: formData.phoneNumber,
         password: formData.password,
-      },
-      {withCredentials: true,});
+      });
 
       if (response.status === 201) {
         
