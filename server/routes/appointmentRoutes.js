@@ -3,6 +3,7 @@ const router = express.Router();
 const Appointment = require("../models/Appointment");
 const jwt = require("jsonwebtoken");
 const dotenv = require("dotenv");
+const User = require('../models/User');
 dotenv.config();
 
 // Middleware to verify JWT token
@@ -42,6 +43,7 @@ router.get("/", verifyToken, async (req, res) => {
 
 router.post('/acuity-webhook', async (req, res) => {
     const appointmentData = req.body;
+    console.log("Webhook Payload:", req.body);
   
     try {
       // Find the user by the client_id in the webhook data
@@ -52,6 +54,7 @@ router.post('/acuity-webhook', async (req, res) => {
   
       // Create a new appointment using the webhook data
       const newAppointment = new Appointment({
+        userId: user._id,
         clientId: appointmentData.client_id,
         datetime: appointmentData.datetime,
         service: appointmentData.service,

@@ -8,7 +8,7 @@ const AppointmentSchema = new mongoose.Schema(
       ref: "User",  // Reference to the User model
       required: true,
     },
-    date: {
+    datetime: {
       type: Date,
       required: true,
     },
@@ -24,6 +24,14 @@ const AppointmentSchema = new mongoose.Schema(
     createdAt: {
       type: Date,
       default: Date.now,
+    },
+    clientId: {
+        type: String,
+        required: false,  // Only if needed for external reference
+    },
+    duration: {
+        type: Number, // Store in minutes
+        required: true,
     },
   },
   { timestamps: true }
