@@ -4,6 +4,7 @@ const Appointment = require("../models/Appointment");
 const jwt = require("jsonwebtoken");
 const dotenv = require("dotenv");
 const User = require('../models/User');
+const axios = require('axios');
 dotenv.config();
 
 // Middleware to verify JWT token
@@ -42,40 +43,53 @@ router.get("/", verifyToken, async (req, res) => {
 });
 
 router.post('/acuity-webhook', async (req, res) => {
-    const appointmentData = req.body;
     console.log("Webhook Payload:", req.body);
-  
     try {
-      // Find the user by the client_id in the webhook data
-      const user = await User.findOne({ acuityClientId: appointmentData.client_id }); // Assuming acuityClientId exists in your User model
-      if (!user) {
-        return res.status(404).send('User not found');
-      }
-  
-      // Create a new appointment using the webhook data
-      const newAppointment = new Appointment({
-        userId: user._id,
-        clientId: appointmentData.client_id,
-        datetime: appointmentData.datetime,
-        service: appointmentData.service,
-        duration: appointmentData.duration,
-        status: appointmentData.status,
-        // Map other fields as necessary from the webhook
-      });
-  
-      // Save the new appointment to the database
-      await newAppointment.save();
-  
-      // Add the new appointment to the user's appointments array
-      user.appointments.push(newAppointment._id);
-      await user.save();
-  
-      // Send a response confirming that the webhook has been processed successfully
-      res.status(200).send('Appointment created and linked to user');
+        const { action, id } = req.body;
+
+        if (action !== "scheduled") {
+            return res.status(400).json({ message: "Ignoring non-scheduled events" });
+        }
+
+        // 🔹 Step 1: Fetch full appointment details from Acuity API
+        const acuityResponse = await axios.get(
+            `https://acuityscheduling.com/api/v1/appointments/${id}`,
+            {
+                auth: { username: process.env.ACUITY_USER, password: process.env.ACUITY_API_KEY }
+            }
+        );
+
+        const appointmentData = acuityResponse.data;
+        console.log("Acuity Payload:", req.body);
+
+        // 🔹 Step 2: Validate required fields before saving
+        if (!appointmentData.datetime || !appointmentData.service || !appointmentData.duration || !appointmentData.email) {
+            return res.status(400).json({ message: "Missing required fields from Acuity API" });
+        }
+
+        // 🔹 Step 3: Find user in MongoDB by email
+        const user = await User.findOne({ email: appointmentData.email });
+
+        if (!user) {
+            return res.status(404).json({ message: "User not found for this appointment" });
+        }
+
+        // 🔹 Step 4: Save appointment with the correct userId
+        const newAppointment = new Appointment({
+            userId: user._id,  // Use the found user’s MongoDB _id
+            datetime: new Date(appointmentData.datetime),
+            service: appointmentData.service,
+            duration: appointmentData.duration,
+            status: "Scheduled",
+        });
+
+        await newAppointment.save();
+        res.status(201).json({ message: "Appointment saved successfully" });
+
     } catch (error) {
-      console.error('Error processing Acuity webhook:', error);
-      res.status(500).send('Error processing webhook');
+        console.error('Error processing Acuity webhook:', error);
+        res.status(500).send('Error processing webhook');
     }
-  });
+});
 
 module.exports = router;
