@@ -6,6 +6,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { barbers } from "@/data/data";
 import axios from "axios";
 import { User } from "@/types/User";
+import { Appointment } from "@/types/Appointment";
 
 interface FormData {
   haircut: string;
@@ -14,7 +15,7 @@ interface FormData {
   photoID: File | null;
   drinkOfChoice: string;
   preferredBarber: string;
-  appointments: Date[];
+  appointments: Appointment[];
 }
 
 // const iframe = document.querySelector("iframe");
@@ -117,25 +118,57 @@ const CustomizeMembership = () => {
     
         eventSource.onmessage = (event) => {
             const data = JSON.parse(event.data);
-            console.log("New appointment created:", data.appointment);
+            console.log("Appointment update:", data.appointment);
+    
+            // Destructure action and appointment data
+            const { action, appointment } = data;
+    
+            // Ensure the appointment contains acuityAppointmentId
+            if (!appointment.acuityAppointmentId) {
+                console.error("Appointment missing acuityAppointmentId:", appointment);
+                return;
+            }
     
             // Update the appointments array within formData
             setFormData((prevFormData) => {
-                const updatedAppointments = [...prevFormData.appointments, data.appointment];
+                // Correctly type the updatedAppointments array
+                let updatedAppointments: Appointment[] = [...prevFormData.appointments];
+    
+                // Handle appointment actions (scheduled, rescheduled, canceled)
+                if (action === "scheduled" || action === "rescheduled") {
+                    // Ensure to filter out existing appointments with the same acuityAppointmentId
+                    updatedAppointments = updatedAppointments.filter((appt) => appt.acuityAppointmentId !== appointment.acuityAppointmentId);
+                    updatedAppointments.push(appointment); // Add the new or rescheduled appointment
+                }
+    
+                // If it's canceled, remove the canceled appointment from the array
+                if (action === "canceled") {
+                    updatedAppointments = updatedAppointments.filter((appt) => appt.acuityAppointmentId !== appointment.acuityAppointmentId);
+                }
+    
                 return {
                     ...prevFormData,
-                    appointments: updatedAppointments, // add the new appointment to the array
+                    appointments: updatedAppointments,
                 };
             });
     
-            // Update the completedAppointments state based on the new number of appointments
-            setCompletedAppointments((prevCompleted) => prevCompleted + 1);
+            // Update completedAppointments state based on the action type
+            setCompletedAppointments((prevCompleted) => {
+                if (action === "scheduled") {
+                    return prevCompleted + 1; // Increment for new appointment
+                } else if (action === "canceled") {
+                    return prevCompleted - 1; // Decrement for canceled appointment
+                } else {
+                    return prevCompleted; // No change for rescheduled
+                }
+            });
         };
     
         return () => {
             eventSource.close(); // Clean up when the component is unmounted
         };
     }, []);
+    
     
     //POTENTIAL COME BACK TO, REQUIRES ACUITY API ACCESS
     // useEffect(() => {
@@ -490,6 +523,7 @@ const CustomizeMembership = () => {
                                     <p className="text-gray-600">Email: {member?.email}</p>
                                     <p className="text-gray-600">Phone Number: {member?.phoneNumber}</p>
                                 </div>
+                                <p className="text-gray-600 text-xs text-center mt-2">The +1 phone number prefix can remain in the form. You do not need to remove it.</p>
                             </div>
                         </div>
 
@@ -505,11 +539,11 @@ const CustomizeMembership = () => {
                         <button
                             onClick={nextStep}
                             className={`px-8 py-3 rounded-lg transition-all font-bold text-xl ${
-                                !formData.preferredBarber
+                                !formData.preferredBarber || completedAppointments < requiredAppointments
                                     ? "bg-gray-300 text-gray-500 cursor-not-allowed"
                                     : "bg-orange-300 text-white hover:bg-orange-400 cursor-pointer"
                             }`}
-                            disabled={!formData.preferredBarber} // Disable if no barber is selected
+                            disabled={!formData.preferredBarber || completedAppointments < requiredAppointments} // Disable if no barber is selected or if not enough appointments are booked
                         >
                             Next
                         </button>

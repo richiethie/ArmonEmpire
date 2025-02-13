@@ -29,6 +29,10 @@ const AppointmentSchema = new mongoose.Schema(
         type: String,
         required: false,  // Only if needed for external reference
     },
+    acuityAppointmentId: {
+      type: String,
+      required: false,  // Only if needed for external reference
+  },
     duration: {
         type: Number, // Store in minutes
         required: true,
