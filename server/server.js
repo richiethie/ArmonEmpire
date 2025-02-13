@@ -13,7 +13,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 // Enable CORS for all origins or specify frontend URL
 const corsOptions = {
-    origin: process.env.FRONTEND_URL, // Adjust this based on where your frontend is hosted
+    origin: process.env.FRONTEND_URL || "http://localhost:5173", // Adjust this based on where your frontend is hosted
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true,

@@ -4,8 +4,12 @@ const Appointment = require("../models/Appointment");
 const jwt = require("jsonwebtoken");
 const dotenv = require("dotenv");
 const User = require('../models/User');
+const Appointment = require('../models/Appointment');
 const axios = require('axios');
 dotenv.config();
+
+// Array to store clients for SSE
+let appointmentsClients = [];
 
 // Middleware to verify JWT token
 const verifyToken = (req, res, next) => {
@@ -42,6 +46,22 @@ router.get("/", verifyToken, async (req, res) => {
     }
 });
 
+// SSE endpoint for sending updates to the frontend
+router.get('/updates', (req, res) => {
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection', 'keep-alive');
+    res.flushHeaders();
+
+    // Store the response object to send messages to the client later
+    appointmentsClients.push(res);
+
+    // Close the connection when the client disconnects
+    req.on('close', () => {
+        appointmentsClients = appointmentsClients.filter(client => client !== res);
+    });
+});
+
 router.post('/acuity-webhook', async (req, res) => {
     console.log("Webhook Payload:", req.body);
     try {
@@ -67,8 +87,13 @@ router.post('/acuity-webhook', async (req, res) => {
             return res.status(400).json({ message: "Missing required fields from Acuity API" });
         }
 
-        // 🔹 Step 3: Find user in MongoDB by email
-        const user = await User.findOne({ email: appointmentData.email });
+        // 🔹 Step 3: Find user in MongoDB by email or phone number
+        const user = await User.findOne({
+            $or: [
+                { email: appointmentData.email },
+                { phoneNumber: appointmentData.phoneNumber } // Assuming phoneNumber is part of your User schema
+            ]
+        });
 
         if (!user) {
             return res.status(404).json({ message: "User not found for this appointment" });
@@ -84,6 +109,12 @@ router.post('/acuity-webhook', async (req, res) => {
         });
 
         await newAppointment.save();
+        
+        // 🔹 Step 5: Emit update to all connected clients via SSE
+        appointmentsClients.forEach(client => {
+            client.write(`data: ${JSON.stringify({ message: "New appointment created", appointment: newAppointment })}\n\n`);
+        });
+
         res.status(201).json({ message: "Appointment saved successfully" });
 
     } catch (error) {

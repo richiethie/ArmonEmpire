@@ -36,6 +36,9 @@ const CustomizeMembership = () => {
     const nextStep = () => setStep((prev) => prev + 1);
     const prevStep = () => setStep((prev) => prev - 1);
 
+    const requiredAppointments = member?.membership === "Gold" ? 4 : member?.membership === "Silver" ? 3 : 2;
+    const completedAppointments = member?.appointments?.length || 0;
+
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
         setFormData({ ...formData, [name]: value });
@@ -106,6 +109,24 @@ const CustomizeMembership = () => {
         };
     
         fetchMemberData();
+    }, []);
+
+    useEffect(() => {
+        const eventSource = new EventSource('/appointments/updates');
+      
+        eventSource.onmessage = (event) => {
+          const data = JSON.parse(event.data);
+          console.log("New appointment created:", data.appointment);
+          // Update the appointments array within formData
+          setFormData((prevFormData) => ({
+            ...prevFormData,
+            appointments: [...prevFormData.appointments, data.appointment],
+          }));
+        };
+      
+        return () => {
+          eventSource.close(); // Clean up when the component is unmounted
+        };
     }, []);
     
     //POTENTIAL COME BACK TO, REQUIRES ACUITY API ACCESS
@@ -364,17 +385,17 @@ const CustomizeMembership = () => {
                         {barbers.map((barber) => (
                             <div
                                 key={barber.id}
-                                onClick={() => setFormData({ ...formData, preferredBarber: barber.id })}
+                                onClick={() => setFormData({ ...formData, preferredBarber: barber.name })}
                                 style={{ boxShadow: '0 0 15px rgba(255, 255, 255, 0.5)' }}
                                 className={`relative border-2 rounded-lg overflow-hidden cursor-pointer transition-all flex flex-col items-center h-[40rem] ${
-                                    formData.preferredBarber === barber.id ? "border-orange-300" : ""
+                                    formData.preferredBarber === barber.name ? "border-orange-300" : ""
                                 }`}
                             >
                                 {/* Checkbox in top-right */}
                                 <div className="absolute top-2 right-2">
                                     <Checkbox 
-                                        checked={formData.preferredBarber === barber.id} 
-                                        onCheckedChange={() => setFormData({ ...formData, preferredBarber: barber.id })} 
+                                        checked={formData.preferredBarber === barber.name} 
+                                        onCheckedChange={() => setFormData({ ...formData, preferredBarber: barber.name })} 
                                         colorScheme="orange"
                                     />
                                 </div>
@@ -414,45 +435,157 @@ const CustomizeMembership = () => {
             {step === 4 && (
                 <div className="flex flex-col items-center">
                     <h1 className="text-6xl">Book Appointments</h1>
-                    <p>To begin your membership, you are required to book the next 2 months in advance.</p>
-                    <p>Select dates for the next two months.</p>
-                    
-                    {/* Acuity Scheduling Embedded Calendar */}
-                    <iframe 
-                        src="https://app.acuityscheduling.com/schedule.php?owner=26056634&calendarID=11548211&ref=embedded_csp" 
-                        title="Schedule Appointment" 
-                        width="60%" 
-                        height="1000" 
-                        frameBorder="0"
-                        className="rounded-lg"
-                    ></iframe>
-                    <script 
-                        src="https://embed.acuityscheduling.com/js/embed.js" 
-                        type="text/javascript"
-                    ></script>
+                    <p className="mb-4">To begin your membership, you are required to book the next 2 months in advance.</p>
+                    <div className="flex w-full justify-center space-x-6 max-w-[100rem]">
+                        {/* Acuity Scheduling Embedded Calendar */}
+                        <iframe 
+                            src="https://app.acuityscheduling.com/schedule.php?owner=26056634&calendarID=11548211&ref=embedded_csp" 
+                            title="Schedule Appointment" 
+                            width="100%" 
+                            height="1000" 
+                            frameBorder="0"
+                            className="rounded-lg"
+                        ></iframe>
+                        <script 
+                            src="https://embed.acuityscheduling.com/js/embed.js" 
+                            type="text/javascript"
+                        ></script>
+                        <div className="bg-white rounded-lg text-black p-6 flex flex-col justify-between">
+                            <div>
+                                <div className="flex justify-between items-center px-2 mb-4">
+                                    <h3 className="font-bold text-lg">Membership Tier</h3>
+                                    <span className="text-orange-300 font-bold text-lg">{member?.membership}</span>
+                                </div>
+                                <p className="text-center mb-2">
+                                    Your {member?.membership} Membership includes a haircut every {member?.membership === "Gold" ? "2" : member?.membership === "Silver" ? "3" : "4"} weeks.
+                                </p>
+                                <p className="text-center mb-4">
+                                    Please schedule {member?.membership === "Gold" ? "4" : member?.membership === "Silver" ? "3" : "2"} appointments to complete your membership.
+                                </p>
+                            </div>
+
+                            <div className="flex flex-col items-center space-y-4">
+                                {/* Appointment Progress Indicator */}
+                                <p className="font-bold">Appointments created</p>
+                                <div className="flex justify-center items-center gap-4">
+                                    {Array.from({ length: requiredAppointments }).map((_, index) => (
+                                        <div
+                                            key={index}
+                                            className={`w-4 h-4 rounded-full transition-all ${
+                                                index < completedAppointments ? "bg-orange-300" : "bg-gray-300"
+                                            }`}
+                                        ></div>
+                                    ))}
+                                </div>
+                            </div>
+                            <div>
+                                <p className="text-gray-600 text-center">Please Note: The email and phone number used in the booking form must match the info used to register your membership (shown below) or appointments will not be valid.</p>
+                                <div className="flex justify-center space-x-6 mt-2">
+                                    <p className="text-gray-600">Email: {member?.email}</p>
+                                    <p className="text-gray-600">Phone Number: {member?.phoneNumber}</p>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div className="absolute bottom-20 left-20 right-20 flex justify-between p-4 font-bold text-xl mx-auto">
+                        <button
+                            onClick={prevStep}
+                            className="bg-gray-400 cursor-pointer text-white px-8 py-3 rounded-lg transition-all hover:bg-gray-500"
+                        >
+                            Back
+                        </button>
+
+                        <button
+                            onClick={nextStep}
+                            className={`px-8 py-3 rounded-lg transition-all font-bold text-xl ${
+                                !formData.preferredBarber
+                                    ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                                    : "bg-orange-300 text-white hover:bg-orange-400 cursor-pointer"
+                            }`}
+                            disabled={!formData.preferredBarber} // Disable if no barber is selected
+                        >
+                            Next
+                        </button>
+                    </div>
                 </div>
             )}
 
             {step === 5 && (
-                <div>
-                <h2 className="text-xl font-bold">Step 5: Review Your Selections</h2>
-                <p><strong>Haircut:</strong> {formData.haircut}</p>
-                <p><strong>Drink:</strong> {formData.wantsDrink ? formData.drinkOfChoice : "No drink selected"}</p>
-                <p><strong>Barber:</strong> {formData.preferredBarber}</p>
-                <p><strong>Appointments:</strong> {formData.appointments.length > 0 ? formData.appointments.join(", ") : "Not booked"}</p>
-                <div className="mt-4 flex justify-between">
-                    <button onClick={prevStep} className="bg-gray-400 text-white p-2">Back</button>
-                    <button onClick={nextStep} className="bg-green-500 text-white p-2">Proceed to Checkout</button>
-                </div>
+                <div className="flex flex-col items-center text-black">
+                    <h1 className="text-6xl text-white">Review your selections</h1>
+                    <div className="flex space-x-6">
+                        {/* Your Information Card */}
+                        <div className="bg-white shadow-lg rounded-lg p-6 mt-6 w-2xl space-y-4 max-w-xl">
+                            <h2 className="text-2xl font-bold mb-4 text-center">Your Information</h2>
+                            <p><strong>First Name:</strong> {member?.firstName}</p>
+                            <p><strong>Last Name:</strong> {member?.lastName}</p>
+                            <p><strong>Email:</strong> {member?.email}</p>
+                            <p><strong>Phone Number:</strong> {member?.phoneNumber || "Not provided"}</p>
+                        </div>
+
+                        {/* Booking Details Card */}
+                        <div className="bg-white shadow-lg rounded-lg p-6 mt-6 w-2xl space-y-4 text-nowrap">
+                            <h2 className="text-2xl font-bold mb-4 text-center">Membership Details</h2>
+                            <p><strong>Haircut:</strong> {formData.haircut.charAt(0).toUpperCase() + formData.haircut.slice(1)}</p>
+                            <p><strong>Drink:</strong> {formData.wantsDrink ? formData.drinkOfChoice : "No drink selected"}</p>
+                            <p><strong>Barber:</strong> {formData.preferredBarber}</p>
+                            <p><strong>Membership Type:</strong> {member?.membership || "Not selected"}</p>
+                            <p><strong>Appointments Booked:</strong> {formData.appointments.length > 0 ? formData.appointments.join(", ") : "Not booked"}</p>
+                        </div>
+                    </div>
+
+                    {/* Navigation Buttons */}
+                    <div className="absolute bottom-20 left-20 right-20 flex justify-between p-4 font-bold text-xl mx-auto">
+                        <button
+                            onClick={prevStep}
+                            className="bg-gray-400 cursor-pointer text-white px-8 py-3 rounded-lg transition-all hover:bg-gray-500"
+                        >
+                            Back
+                        </button>
+
+                        <button
+                            onClick={nextStep}
+                            className={`px-8 py-3 rounded-lg transition-all font-bold text-xl ${
+                                !formData.preferredBarber
+                                    ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                                    : "bg-orange-300 text-white hover:bg-orange-400 cursor-pointer"
+                            }`}
+                            disabled={!formData.preferredBarber} // Disable if no barber is selected
+                        >
+                            Proceed to payment
+                        </button>
+                    </div>
                 </div>
             )}
 
             {step === 6 && (
                 <div>
-                <h2 className="text-xl font-bold">Step 6: Checkout</h2>
-                <p>Set up your monthly membership payment.</p>
-                {/* Placeholder for Stripe integration */}
-                <button className="mt-4 bg-green-500 text-white p-2">Subscribe</button>
+                    <h2 className="text-xl font-bold">Step 6: Checkout</h2>
+                    <p>Set up your monthly membership payment.</p>
+                    {/* Placeholder for Stripe integration */}
+                    <button className="mt-4 bg-green-500 text-white p-2">Subscribe</button>
+                    {/* Navigation Buttons */}
+                    <div className="absolute bottom-20 left-20 right-20 flex justify-between p-4 font-bold text-xl mx-auto">
+                        <button
+                            onClick={prevStep}
+                            className="bg-gray-400 cursor-pointer text-white px-8 py-3 rounded-lg transition-all hover:bg-gray-500"
+                        >
+                            Back
+                        </button>
+
+                        <button
+                            onClick={nextStep}
+                            className={`px-8 py-3 rounded-lg transition-all font-bold text-xl ${
+                                !formData.preferredBarber
+                                    ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                                    : "bg-orange-300 text-white hover:bg-orange-400 cursor-pointer"
+                            }`}
+                            disabled={!formData.preferredBarber} // Disable if no barber is selected
+                        >
+                            Proceed to payment
+                        </button>
+                    </div>
                 </div>
             )}
         </div>
