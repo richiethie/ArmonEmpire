@@ -75,28 +75,39 @@ const CustomizeMembership = () => {
     };
 
     useEffect(() => {
-        const eventSource = new EventSource(`${import.meta.env.VITE_API_URL}/api/appointments/updates`);
+        const fetchMemberData = async () => {
+            try {
+                const token = localStorage.getItem("token"); // Retrieve token from local storage
+                const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/user`, {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                });
     
-        eventSource.onmessage = (event) => {
-            const data = JSON.parse(event.data);
-            console.log("New appointment created:", data.appointment);
+                const data = response.data;
     
-            // Update the appointments array within formData
-            setFormData((prevFormData) => {
-                const updatedAppointments = [...prevFormData.appointments, data.appointment];
-                return {
-                    ...prevFormData,
-                    appointments: updatedAppointments, // add the new appointment to the array
-                };
-            });
-    
-            // Update the completedAppointments state based on the new number of appointments
-            setCompletedAppointments((prevCompleted) => prevCompleted + 1);
+                setMember({
+                    _id: data._id || "",
+                    firstName: data.firstName || "",
+                    lastName: data.lastName || "",
+                    email: data.email || "",
+                    password: "", // Password should not be autofilled for security reasons
+                    membership: data.membership || "Free",
+                    preferredBarber: data.preferredBarber || "",
+                    drinkOfChoice: data.drinkOfChoice || "",
+                    isOfLegalDrinkingAge: data.isOfLegalDrinkingAge || false,
+                    appointments: data.appointments || [],
+                    phoneNumber: data.phoneNumber || "",
+                    dob: data.dob || "", // Keeping dob in case it's still needed
+                    photoID: null, // Files can't be preloaded, handle this separately
+                    wantsDrink: data.wantsDrink || false, // Assuming this is still relevant
+                });
+            } catch (error) {
+                console.error("Error fetching member data:", error);
+            }
         };
     
-        return () => {
-            eventSource.close(); // Clean up when the component is unmounted
-        };
+        fetchMemberData();
     }, []);
 
     const requiredAppointments = member?.membership === "Gold" ? 4 : member?.membership === "Silver" ? 3 : 2;
@@ -116,6 +127,9 @@ const CustomizeMembership = () => {
                     appointments: updatedAppointments, // add the new appointment to the array
                 };
             });
+    
+            // Update the completedAppointments state based on the new number of appointments
+            setCompletedAppointments((prevCompleted) => prevCompleted + 1);
         };
     
         return () => {
