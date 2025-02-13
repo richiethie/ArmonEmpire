@@ -294,7 +294,7 @@ const CustomizeMembership = () => {
 
                     {isMobile ? (
                         // Mobile View
-                        <div className="flex flex-col items-center w-full max-w-xl mx-auto">
+                        <div className="flex flex-col items-center w-full max-w-xl mx-auto mb-[5rem]">
                             {/* Video Section */}
                             <div className="w-full h-[35rem]">
                                 <video 
