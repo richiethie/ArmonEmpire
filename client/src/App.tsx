@@ -9,6 +9,7 @@ import ProtectedRoute from "./utils/ProtectedRoute";
 import Members from "./pages/Members";
 import SelectMembership from "./pages/SelectMembership";
 import CustomizeMembership from "./pages/CustomizeMembership";
+import ScrollToTop from "./ScrollToTop";
 
 function App() {
 
@@ -16,6 +17,7 @@ function App() {
     <IsMobileProvider>
       <div className="flex flex-col min-h-screen">
         <main className="flex-grow">
+          <ScrollToTop />
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/services" element={<Services />} />
