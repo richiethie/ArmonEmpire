@@ -4,7 +4,6 @@ const Appointment = require("../models/Appointment");
 const jwt = require("jsonwebtoken");
 const dotenv = require("dotenv");
 const User = require('../models/User');
-const Appointment = require('../models/Appointment');
 const axios = require('axios');
 dotenv.config();
 
@@ -109,7 +108,7 @@ router.post('/acuity-webhook', async (req, res) => {
         });
 
         await newAppointment.save();
-        
+
         // 🔹 Step 5: Emit update to all connected clients via SSE
         appointmentsClients.forEach(client => {
             client.write(`data: ${JSON.stringify({ message: "New appointment created", appointment: newAppointment })}\n\n`);
