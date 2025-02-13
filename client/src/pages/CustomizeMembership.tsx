@@ -297,7 +297,15 @@ const CustomizeMembership = () => {
                         <div className="flex flex-col items-center w-full max-w-xl mx-auto">
                             {/* Video Section */}
                             <div className="w-full h-[35rem]">
-                                    <video src={whiskey} autoPlay muted loop className="relative w-full h-full object-cover rounded-lg" />
+                                <video 
+                                    src={whiskey} 
+                                    autoPlay 
+                                    muted 
+                                    loop 
+                                    playsInline 
+                                    controls={false}
+                                    className="relative w-full h-full object-cover rounded-lg" 
+                                />
                             </div>
                             {/* Form Section with Transparent Background */}
                             <div className="absolute bg-gray-600/20 p-6 h-[30rem] mt-6 w-[70%] rounded-lg z-10">
