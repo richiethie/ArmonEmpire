@@ -120,8 +120,8 @@ const CustomizeMembership = () => {
             const data = JSON.parse(event.data);
             console.log("Appointment update:", data.appointment);
     
-            // Destructure action and appointment data
-            const { action, appointment } = data;
+            // Destructure status and appointment data
+            const { status, appointment } = data;
     
             // Ensure the appointment contains acuityAppointmentId
             if (!appointment.acuityAppointmentId) {
@@ -134,15 +134,15 @@ const CustomizeMembership = () => {
                 // Correctly type the updatedAppointments array
                 let updatedAppointments: Appointment[] = [...prevFormData.appointments];
     
-                // Handle appointment actions (scheduled, rescheduled, canceled)
-                if (action === "scheduled" || action === "rescheduled") {
+                // Handle appointment statuss (scheduled, rescheduled, canceled)
+                if (status === "scheduled" || status === "rescheduled") {
                     // Ensure to filter out existing appointments with the same acuityAppointmentId
                     updatedAppointments = updatedAppointments.filter((appt) => appt.acuityAppointmentId !== appointment.acuityAppointmentId);
                     updatedAppointments.push(appointment); // Add the new or rescheduled appointment
                 }
     
                 // If it's canceled, remove the canceled appointment from the array
-                if (action === "canceled") {
+                if (status === "canceled") {
                     updatedAppointments = updatedAppointments.filter((appt) => appt.acuityAppointmentId !== appointment.acuityAppointmentId);
                 }
     
@@ -152,11 +152,11 @@ const CustomizeMembership = () => {
                 };
             });
     
-            // Update completedAppointments state based on the action type
+            // Update completedAppointments state based on the status type
             setCompletedAppointments((prevCompleted) => {
-                if (action === "scheduled") {
+                if (status === "scheduled") {
                     return prevCompleted + 1; // Increment for new appointment
-                } else if (action === "canceled") {
+                } else if (status === "canceled") {
                     return prevCompleted - 1; // Decrement for canceled appointment
                 } else {
                     return prevCompleted; // No change for rescheduled
