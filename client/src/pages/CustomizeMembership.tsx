@@ -122,7 +122,7 @@ const CustomizeMembership = () => {
     
             // Destructure status and appointment data
 
-            console.log("Status: ", data.status);
+            console.log("Status: ", data.appointment.status);
             console.log("appointment: ", data.appointment);
     
             // Ensure the appointment contains acuityAppointmentId
@@ -137,14 +137,14 @@ const CustomizeMembership = () => {
                 let updatedAppointments: Appointment[] = [...prevFormData.appointments];
     
                 // Handle appointment statuss (scheduled, rescheduled, canceled)
-                if (data.status === "Scheduled" || data.status === "Rescheduled") {
+                if (data.appointment.status === "Scheduled" || data.appointment.status === "Rescheduled") {
                     // Ensure to filter out existing appointments with the same acuityAppointmentId
                     updatedAppointments = updatedAppointments.filter((appt) => appt.acuityAppointmentId !== data.appointment.acuityAppointmentId);
                     updatedAppointments.push(data.appointment); // Add the new or rescheduled appointment
                 }
     
                 // If it's canceled, remove the canceled appointment from the array
-                if (data.status === "Canceled") {
+                if (data.appointment.status === "Canceled") {
                     updatedAppointments = updatedAppointments.filter((appt) => appt.acuityAppointmentId !== data.appointment.acuityAppointmentId);
                 }
     
@@ -156,9 +156,9 @@ const CustomizeMembership = () => {
     
             // Update completedAppointments state based on the status type
             setCompletedAppointments((prevCompleted) => {
-                if (data.status === "Scheduled") {
+                if (data.appointment.status === "Scheduled") {
                     return prevCompleted + 1; // Increment for new appointment
-                } else if (data.status === "Canceled") {
+                } else if (data.appointment.status === "Canceled") {
                     return prevCompleted - 1; // Decrement for canceled appointment
                 } else {
                     return prevCompleted; // No change for rescheduled
