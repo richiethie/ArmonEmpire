@@ -79,7 +79,7 @@ router.post('/acuity-webhook', async (req, res) => {
         );
 
         const appointmentData = acuityResponse.data;
-        console.log("Acuity Payload:", req.body);
+        console.log("Acuity Payload:", appointmentData);
 
         // 🔹 Step 2: Validate required fields before saving
         if (!appointmentData.datetime || !appointmentData.service || !appointmentData.duration || !appointmentData.email) {
