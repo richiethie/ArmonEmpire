@@ -112,7 +112,7 @@ const CustomizeMembership = () => {
     }, []);
 
     useEffect(() => {
-        const eventSource = new EventSource('/appointments/updates');
+        const eventSource = new EventSource(`${import.meta.env.VITE_API_URL}/api/appointments/updates`);
       
         eventSource.onmessage = (event) => {
           const data = JSON.parse(event.data);

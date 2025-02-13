@@ -54,10 +54,12 @@ router.get('/updates', (req, res) => {
 
     // Store the response object to send messages to the client later
     appointmentsClients.push(res);
+    console.log('New client connected, total clients:', appointmentsClients.length);
 
     // Close the connection when the client disconnects
     req.on('close', () => {
         appointmentsClients = appointmentsClients.filter(client => client !== res);
+        console.log('Client disconnected, total clients:', appointmentsClients.length);
     });
 });
 
