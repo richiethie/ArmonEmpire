@@ -135,14 +135,14 @@ const CustomizeMembership = () => {
                 let updatedAppointments: Appointment[] = [...prevFormData.appointments];
     
                 // Handle appointment statuss (scheduled, rescheduled, canceled)
-                if (status === "scheduled" || status === "rescheduled") {
+                if (status === "Scheduled" || status === "Rescheduled") {
                     // Ensure to filter out existing appointments with the same acuityAppointmentId
                     updatedAppointments = updatedAppointments.filter((appt) => appt.acuityAppointmentId !== appointment.acuityAppointmentId);
                     updatedAppointments.push(appointment); // Add the new or rescheduled appointment
                 }
     
                 // If it's canceled, remove the canceled appointment from the array
-                if (status === "canceled") {
+                if (status === "Canceled") {
                     updatedAppointments = updatedAppointments.filter((appt) => appt.acuityAppointmentId !== appointment.acuityAppointmentId);
                 }
     
@@ -154,9 +154,9 @@ const CustomizeMembership = () => {
     
             // Update completedAppointments state based on the status type
             setCompletedAppointments((prevCompleted) => {
-                if (status === "scheduled") {
+                if (status === "Scheduled") {
                     return prevCompleted + 1; // Increment for new appointment
-                } else if (status === "canceled") {
+                } else if (status === "Canceled") {
                     return prevCompleted - 1; // Decrement for canceled appointment
                 } else {
                     return prevCompleted; // No change for rescheduled
