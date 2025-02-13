@@ -2,10 +2,12 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom'; // Import useNavigate
 import EmptyHeader from '@/components/EmptyHeader';
+import { useIsMobile } from '@/context/MobileContext';
 
 const SelectMembership = () => {
   const [selectedMembership, setSelectedMembership] = useState("");
   const navigate = useNavigate(); // Initialize navigate function
+  const isMobile = useIsMobile();
 
   const handleChooseMembership = async (membership: string) => {
     try {
@@ -37,8 +39,8 @@ const SelectMembership = () => {
   return (
     <div className="flex flex-col bg-black justify-start items-center min-h-screen">
       <EmptyHeader />  
-      <h1 className="text-8xl my-[10rem]">Choose your membership</h1>
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 max-w-8xl p-8">
+      <h1 className="text-4xl md:text-8xl mt-28 md:my-[10rem]">Choose your membership</h1>
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-10 max-w-8xl p-8">
         {/* Bronze Membership */}
         <div className="p-6 rounded-lg shadow-white border border-white text-center space-y-4">
           <h3 className="text-4xl font-semibold">Bronze Membership</h3>
@@ -64,10 +66,10 @@ const SelectMembership = () => {
 
         {/* Gold Membership (larger) */}
         <div className="p-8 rounded-lg shadow-white border border-white text-center space-y-4 transform scale-110">
-          <h3 className="text-5xl font-semibold">Gold Membership</h3>
+          <h3 className="text-4xl md:text-5xl font-semibold">Gold Membership</h3>
           <p className="text-xl">Haircuts every 2 weeks</p>
           <p className="text-xl font-semibold text-orange-300">$90</p>
-          <ul className="space-y-6 text-lg">
+          <ul className="space-y-6 text-sm md:text-lg">
             <li className="text-gray-300">• Complimentary drinks provided</li>
             <li className="text-gray-300">• Savings on specialty services</li>
             <li className="text-gray-300">• No overtime fees on late bookings</li>

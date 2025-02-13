@@ -7,6 +7,7 @@ import { barbers } from "@/data/data";
 import axios from "axios";
 import { User } from "@/types/User";
 import { Appointment } from "@/types/Appointment";
+import { useIsMobile } from "@/context/MobileContext";
 
 interface FormData {
   haircut: string;
@@ -25,6 +26,8 @@ const CustomizeMembership = () => {
     const [step, setStep] = useState<number>(1);
     const [member, setMember] = useState<User | null>(null);
     const [completedAppointments, setCompletedAppointments] = useState<number>(0);
+
+    const isMobile = useIsMobile();
 
     const [formData, setFormData] = useState<FormData>({
         haircut: "",
@@ -215,23 +218,32 @@ const CustomizeMembership = () => {
         <div className="p-6 mx-auto mt-25">
             {/* HAIRCUT */}
             {step === 1 && (
-                <div className="mx-[12rem]">
-                    <h1 className="text-6xl text-center mb-6">Choose your haircut</h1>
-                    <h2 className="text-xl font-bold text-center mb-6">Select your haircut from the following options, or select "Other"</h2>
+                <div className={`px-4 ${isMobile ? "w-full" : "mx-[12rem]"}`}>
+                    <h1 className="text-4xl md:text-6xl text-center mb-4 md:mb-6">Choose your haircut</h1>
+                    <h2 className="text-md md:text-xl font-bold text-center mb-4 md:mb-6">
+                        Select your haircut from the following options, or select "Other"
+                    </h2>
+
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                         {haircuts.map((cut) => (
                             <div
                                 key={cut.id}
                                 className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${
-                                    formData.haircut === cut.id ? "border-orange-300 shadow-lg shadow-orange-300/50" : "border-gray-500"
+                                    formData.haircut === cut.id
+                                        ? "border-orange-300 shadow-lg shadow-orange-300/50"
+                                        : "border-gray-500"
                                 }`}
                                 onClick={() => setFormData({ ...formData, haircut: cut.id })}
                             >
-                                <img src={cut.image} alt={cut.name} className="w-full h-40 object-cover rounded-md" />
-                                <h3 className="text-lg font-semibold mt-2">{cut.name}</h3>
+                                <img
+                                    src={cut.image}
+                                    alt={cut.name}
+                                    className="w-full h-32 md:h-40 object-cover rounded-md"
+                                />
+                                <h3 className="text-base md:text-lg font-semibold mt-2">{cut.name}</h3>
                                 <button
                                     className={`mt-2 w-full py-2 cursor-pointer rounded text-white ${
-                                    formData.haircut === cut.id ? "bg-orange-300" : "bg-gray-700 hover:bg-orange-400"
+                                        formData.haircut === cut.id ? "bg-orange-300" : "bg-gray-700 hover:bg-orange-400"
                                     }`}
                                 >
                                     {formData.haircut === cut.id ? "Selected" : "Select"}
@@ -242,14 +254,16 @@ const CustomizeMembership = () => {
                         {/* "Other" Option */}
                         <div
                             className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${
-                                formData.haircut === "Other" ? "border-orange-300 shadow-lg shadow-orange-300/50" : "border-gray-500"
+                                formData.haircut === "Other"
+                                    ? "border-orange-300 shadow-lg shadow-orange-300/50"
+                                    : "border-gray-500"
                             }`}
                             onClick={() => setFormData({ ...formData, haircut: "Other" })}
                         >
-                            <h3 className="text-lg font-semibold text-center">Other</h3>
+                            <h3 className="text-base md:text-lg font-semibold text-center">Other</h3>
                             <button
                                 className={`mt-2 w-full py-2 rounded text-white ${
-                                formData.haircut === "Other" ? "bg-orange-300" : "bg-gray-700 hover:bg-orange-400"
+                                    formData.haircut === "Other" ? "bg-orange-300" : "bg-gray-700 hover:bg-orange-400"
                                 }`}
                             >
                                 {formData.haircut === "Other" ? "Selected" : "Select"}
@@ -258,150 +272,271 @@ const CustomizeMembership = () => {
                     </div>
 
                     {/* Next Button */}
-                    <button
-                        onClick={nextStep}
-                        disabled={!formData.haircut || (formData.haircut === "Other" && !formData.haircut.trim())}
-                        className={`fixed bottom-20 right-20 py-2 px-8 rounded text-white text-xl font-bold ${
-                            formData.haircut && (formData.haircut !== "Other" || formData.haircut.trim())
-                            ? "bg-orange-300 cursor-pointer hover:bg-orange-500"
-                            : "bg-gray-500 cursor-not-allowed"
-                        }`}
-                    >
-                        Next
-                    </button>
+                    <div className="flex justify-end mt-6">
+                        <button
+                            onClick={nextStep}
+                            disabled={!formData.haircut || (formData.haircut === "Other" && !formData.haircut.trim())}
+                            className={`py-2 px-6 md:px-8 rounded text-white text-lg md:text-xl font-bold transition-all ${
+                                formData.haircut && (formData.haircut !== "Other" || formData.haircut.trim())
+                                    ? "bg-orange-300 cursor-pointer hover:bg-orange-500"
+                                    : "bg-gray-500 cursor-not-allowed"
+                            }`}
+                        >
+                            Next
+                        </button>
+                    </div>
                 </div>
             )}
 
             {step === 2 && (
-                <div className="flex flex-col items-center px-6 py-10">
-                    <h1 className="text-6xl text-center mb-6">Complimentary Drink</h1>
+                <div className={`flex flex-col items-center px-4 ${isMobile ? ("") : ("py-8")}`}>
+                    <h1 className="text-4xl md:text-6xl text-center mb-4 md:mb-6">Complimentary Drink</h1>
 
-                    <div className="flex text-black bg-gray-200 items-stretch justify-center rounded-lg w-full h-full max-w-6xl mx-auto" style={{ boxShadow: '0 0 25px rgba(255, 255, 255, 0.5)' }}>
-                        {/* Form Section */}
-                        <div
-                            className={`p-8 w-full h-full rounded-l-lg md:w-1/2`}
-                        >
-                            <label className="text-lg font-semibold">
-                                <span>Would you like a complimentary drink?</span>
-                            </label>
-                            <div className="flex items-center space-x-6 mt-2">
-                                <label className="flex items-center space-x-2">
-                                    <Checkbox
-                                        className="cursor-pointer"
-                                        colorPalette="blue"
-                                        name="wantsDrink"
-                                        checked={formData.wantsDrink === true}
-                                        onCheckedChange={handleCheckboxChange}
-                                        size="lg"
-                                    >
-                                        Yes
-                                    </Checkbox>
-                                </label>
-                                <label className="flex items-center space-x-2">
-                                    <Checkbox
-                                        className="cursor-pointer"
-                                        colorPalette="blue"
-                                        name="wantsDrink"
-                                        defaultChecked
-                                        checked={formData.wantsDrink === false}
-                                        onCheckedChange={handleCheckboxChange}
-                                        size="lg"
-                                    >
-                                        No
-                                    </Checkbox>
-                                </label>
+                    {isMobile ? (
+                        // Mobile View
+                        <div className="flex flex-col items-center w-full max-w-xl mx-auto">
+                            {/* Video Section */}
+                            <div className="w-full h-[35rem]">
+                                    <video src={whiskey} autoPlay muted loop className="relative w-full h-full object-cover rounded-lg" />
                             </div>
-
-                            <div className="mt-4 space-y-4">
-                                <div>
-                                    <label className={`block text-lg mb-2 font-semibold ${ !formData.wantsDrink ? ("text-gray-400") : ("")}`}>Select your Date of Birth:</label>
-                                    <input
-                                        type="date"
-                                        name="dob" // Change the name to reflect the user's date of birth
-                                        value={formData.dob} // Update with the correct state property
-                                        onChange={handleChange}
-                                        className={`border p-3 w-full rounded-md ${ !formData.wantsDrink ? ("text-gray-400 border-gray-400") : ("")}`}
-                                        disabled={!formData.wantsDrink}
-                                    />
+                            {/* Form Section with Transparent Background */}
+                            <div className="absolute bg-gray-600/20 p-6 h-[30rem] mt-6 w-[70%] rounded-lg z-10">
+                                <label className="text-md font-semibold">Would you like a complimentary drink?</label>
+                                <div className="flex items-center space-x-4 mt-2">
+                                    <label className="flex items-center space-x-2">
+                                        <Checkbox
+                                            className="cursor-pointer"
+                                            colorPalette="blue"
+                                            name="wantsDrink"
+                                            checked={formData.wantsDrink === true}
+                                            onCheckedChange={handleCheckboxChange}
+                                            size="lg"
+                                        >
+                                            Yes
+                                        </Checkbox>
+                                    </label>
+                                    <label className="flex items-center space-x-2">
+                                        <Checkbox
+                                            className="cursor-pointer"
+                                            colorPalette="blue"
+                                            name="wantsDrink"
+                                            checked={formData.wantsDrink === false}
+                                            onCheckedChange={handleCheckboxChange}
+                                            size="lg"
+                                        >
+                                            No
+                                        </Checkbox>
+                                    </label>
                                 </div>
 
-                                {getAge(formData.dob) >= 21 && (
-                                    <div className="space-y-4">
-                                        <div>
-                                            <label className={`block text-md mb-2 font-semibold ${!formData.wantsDrink ? "text-gray-400" : ""}`}>
-                                                Upload Photo ID:
-                                            </label>
-
-                                            <label
-                                                htmlFor="fileUpload"
-                                                className={`p-3 w-full rounded-md flex items-center justify-center cursor-pointer transition-all ${
-                                                    !formData.wantsDrink
-                                                        ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                                                        : "bg-orange-300 text-white hover:bg-orange-400"
-                                                }`}
-                                            >
-                                                Choose File
-                                            </label>
-
-                                            <input
-                                                id="fileUpload"
-                                                type="file"
-                                                onChange={handleFileUpload}
-                                                className="hidden" // Hides the default file input
-                                                disabled={!formData.wantsDrink}
-                                            />
-
-                                            {formData.photoID && (
-                                                <p className="mt-2 text-sm text-gray-700">Selected: {formData.photoID.name}</p>
-                                            )}
-                                        </div>
-
-                                        <div>
-                                            <label className={`block text-md mb-2 font-semibold ${ !formData.wantsDrink ? ("text-gray-400") : ("")}`}>Choose your drink:</label>
-                                            <select
-                                                name="drinkOfChoice"
-                                                value={formData.drinkOfChoice}
-                                                onChange={handleChange}
-                                                className={`border p-3 w-full rounded-md ${ !formData.wantsDrink ? ("text-gray-400 border-gray-400") : ("")}`}
-                                                disabled={!formData.wantsDrink}
-                                            >
-                                                <option value="">Select a drink</option>
-                                                <option value="Water">Water</option>
-                                                <option value="Coca-Cola">Coca-Cola</option>
-                                                <option value="Pepsi">Pepsi</option>
-                                                <option value="Sprite">Sprite</option>
-                                                <option value="Whiskey">Whiskey</option>
-                                                <option value="Vodka">Vodka</option>
-                                                <option value="Rum">Rum</option>
-                                                <option value="Gin">Gin</option>
-                                                <option value="Tequila">Tequila</option>
-                                                <option value="Scotch">Scotch</option>
-                                                <option value="Bourbon">Bourbon</option>
-                                                <option value="Brandy">Brandy</option>
-                                                <option value="Cognac">Cognac</option>
-                                                <option value="Red Wine">Red Wine</option>
-                                                <option value="White Wine">White Wine</option>
-                                                <option value="Champagne">Champagne</option>
-                                            </select>
-                                        </div>
+                                {/* Date of Birth */}
+                                <div className="mt-4 space-y-4">
+                                    <div>
+                                        <label className={`block text-md mb-2 font-semibold ${!formData.wantsDrink ? "text-gray-400" : ""}`}>
+                                            Select your Date of Birth:
+                                        </label>
+                                        <input
+                                            type="date"
+                                            name="dob"
+                                            value={formData.dob}
+                                            onChange={handleChange}
+                                            className={`border p-3 w-full rounded-md ${!formData.wantsDrink ? "text-gray-400 border-gray-400" : ""}`}
+                                            disabled={!formData.wantsDrink}
+                                        />
                                     </div>
-                                )}
+
+                                    {/* If age >= 21, show additional options */}
+                                    {getAge(formData.dob) >= 21 && (
+                                        <div className="space-y-4">
+                                            {/* Upload ID */}
+                                            <div>
+                                                <label className={`block text-md mb-2 font-semibold ${!formData.wantsDrink ? "text-gray-400" : ""}`}>
+                                                    Upload Photo ID:
+                                                </label>
+                                                <label
+                                                    htmlFor="fileUpload"
+                                                    className={`p-3 w-full rounded-md flex items-center justify-center cursor-pointer transition-all ${
+                                                        !formData.wantsDrink
+                                                            ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                                                            : "bg-orange-300 text-white hover:bg-orange-400"
+                                                    }`}
+                                                >
+                                                    Upload
+                                                </label>
+                                                <input id="fileUpload" type="file" accept="image/*" capture="environment" onChange={handleFileUpload} className="hidden" disabled={!formData.wantsDrink} />
+                                                {formData.photoID && <p className="mt-2 text-sm text-gray-700">Selected: {formData.photoID.name}</p>}
+                                            </div>
+
+                                            {/* Choose Drink */}
+                                            <div>
+                                                <label className={`block text-md mb-2 font-semibold ${!formData.wantsDrink ? "text-gray-400" : ""}`}>
+                                                    Choose your drink:
+                                                </label>
+                                                <select
+                                                    name="drinkOfChoice"
+                                                    value={formData.drinkOfChoice}
+                                                    onChange={handleChange}
+                                                    className={`border p-3 w-full rounded-md ${!formData.wantsDrink ? "text-gray-400 border-gray-400" : ""}`}
+                                                    disabled={!formData.wantsDrink}
+                                                >
+                                                    <option className="text-black" value="">Select a drink</option>
+                                                    <option className="text-black" value="Water">Water</option>
+                                                    <option className="text-black" value="Whiskey">Whiskey</option>
+                                                    <option className="text-black" value="Vodka">Vodka</option>
+                                                    <option className="text-black" value="Rum">Rum</option>
+                                                    <option className="text-black" value="Gin">Gin</option>
+                                                    <option className="text-black" value="Tequila">Tequila</option>
+                                                    <option className="text-black" value="Scotch">Scotch</option>
+                                                    <option className="text-black" value="Bourbon">Bourbon</option>
+                                                    <option className="text-black" value="Brandy">Brandy</option>
+                                                    <option className="text-black" value="Cognac">Cognac</option>
+                                                    <option className="text-black" value="Red Wine">Red Wine</option>
+                                                    <option className="text-black" value="White Wine">White Wine</option>
+                                                    <option className="text-black" value="Champagne">Champagne</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+
+                        </div>
+                    ) : (
+                        
+                        <div
+                            className={`flex ${isMobile ? "flex-col" : "flex-row"} text-black bg-gray-200 rounded-lg w-full max-w-6xl mx-auto`}
+                            style={{ boxShadow: '0 0 25px rgba(255, 255, 255, 0.5)' }}
+                        >
+                            {/* Form Section */}
+                            <div className={`p-6 md:p-8 w-full ${isMobile ? "rounded-t-lg" : "rounded-l-lg md:w-1/2"}`}>
+                                <label className="text-lg font-semibold">Would you like a complimentary drink?</label>
+                                <div className="flex items-center space-x-4 md:space-x-6 mt-2">
+                                    <label className="flex items-center space-x-2">
+                                        <Checkbox
+                                            className="cursor-pointer"
+                                            colorPalette="blue"
+                                            name="wantsDrink"
+                                            checked={formData.wantsDrink === true}
+                                            onCheckedChange={handleCheckboxChange}
+                                            size="lg"
+                                        >
+                                            Yes
+                                        </Checkbox>
+                                    </label>
+                                    <label className="flex items-center space-x-2">
+                                        <Checkbox
+                                            className="cursor-pointer"
+                                            colorPalette="blue"
+                                            name="wantsDrink"
+                                            checked={formData.wantsDrink === false}
+                                            onCheckedChange={handleCheckboxChange}
+                                            size="lg"
+                                        >
+                                            No
+                                        </Checkbox>
+                                    </label>
+                                </div>
+
+                                {/* Date of Birth */}
+                                <div className="mt-4 space-y-4">
+                                    <div>
+                                        <label className={`block text-lg mb-2 font-semibold ${!formData.wantsDrink ? "text-gray-400" : ""}`}>
+                                            Select your Date of Birth:
+                                        </label>
+                                        <input
+                                            type="date"
+                                            name="dob"
+                                            value={formData.dob}
+                                            onChange={handleChange}
+                                            className={`border p-3 w-full rounded-md ${!formData.wantsDrink ? "text-gray-400 border-gray-400" : ""}`}
+                                            disabled={!formData.wantsDrink}
+                                        />
+                                    </div>
+
+                                    {/* If age >= 21, show additional options */}
+                                    {getAge(formData.dob) >= 21 && (
+                                        <div className="space-y-4">
+                                            {/* Upload ID */}
+                                            <div>
+                                                <label className={`block text-md mb-2 font-semibold ${!formData.wantsDrink ? "text-gray-400" : ""}`}>
+                                                    Upload Photo ID:
+                                                </label>
+
+                                                <label
+                                                    htmlFor="fileUpload"
+                                                    className={`p-3 w-full rounded-md flex items-center justify-center cursor-pointer transition-all ${
+                                                        !formData.wantsDrink
+                                                            ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                                                            : "bg-orange-300 text-white hover:bg-orange-400"
+                                                    }`}
+                                                >
+                                                    Choose File
+                                                </label>
+
+                                                <input
+                                                    id="fileUpload"
+                                                    type="file"
+                                                    onChange={handleFileUpload}
+                                                    className="hidden"
+                                                    disabled={!formData.wantsDrink}
+                                                />
+
+                                                {formData.photoID && (
+                                                    <p className="mt-2 text-sm text-gray-700">Selected: {formData.photoID.name}</p>
+                                                )}
+                                            </div>
+
+                                            {/* Choose Drink */}
+                                            <div>
+                                                <label className={`block text-md mb-2 font-semibold ${!formData.wantsDrink ? "text-gray-400" : ""}`}>
+                                                    Choose your drink:
+                                                </label>
+                                                <select
+                                                    name="drinkOfChoice"
+                                                    value={formData.drinkOfChoice}
+                                                    onChange={handleChange}
+                                                    className={`border p-3 w-full rounded-md ${!formData.wantsDrink ? "text-gray-400 border-gray-400" : ""}`}
+                                                    disabled={!formData.wantsDrink}
+                                                >
+                                                    <option value="">Select a drink</option>
+                                                    <option value="Water">Water</option>
+                                                    <option value="Coca-Cola">Coca-Cola</option>
+                                                    <option value="Pepsi">Pepsi</option>
+                                                    <option value="Sprite">Sprite</option>
+                                                    <option value="Whiskey">Whiskey</option>
+                                                    <option value="Vodka">Vodka</option>
+                                                    <option value="Rum">Rum</option>
+                                                    <option value="Gin">Gin</option>
+                                                    <option value="Tequila">Tequila</option>
+                                                    <option value="Scotch">Scotch</option>
+                                                    <option value="Bourbon">Bourbon</option>
+                                                    <option value="Brandy">Brandy</option>
+                                                    <option value="Cognac">Cognac</option>
+                                                    <option value="Red Wine">Red Wine</option>
+                                                    <option value="White Wine">White Wine</option>
+                                                    <option value="Champagne">Champagne</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+
+                            {/* Video Section */}
+                            <div className={`w-full ${isMobile ? "rounded-b-lg" : "md:w-1/2"} h-64 md:h-full`}>
+                                <video
+                                    src={whiskey}
+                                    autoPlay
+                                    muted
+                                    loop
+                                    className="w-full h-full object-cover rounded-b-lg md:rounded-r-lg"
+                                />
                             </div>
                         </div>
+                    )}
 
-                        {/* Video Section */}
-                        <div className="w-full md:w-1/2 h-full">
-                            <video
-                                src={whiskey} // Make sure to replace this with your correct video path
-                                autoPlay
-                                muted
-                                loop
-                                className="w-full h-full object-cover rounded-r-lg"
-                            />
-                        </div>
-                    </div>
-
-                    <div className="absolute bottom-20 left-20 right-20 flex justify-between p-4 font-bold text-xl mx-auto">
+                    {/* Navigation Buttons */}
+                    <div className={`absolute ${isMobile ? ("bottom-5 left-2 right-2 text-sm") : ("bottom-20 left-20 right-20 text-xl")} flex justify-between p-4 font-bold mx-auto`}>
                         <button
                             onClick={prevStep}
                             className="bg-gray-400 text-white px-8 py-3 rounded-lg transition-all hover:bg-gray-500"
@@ -411,7 +546,7 @@ const CustomizeMembership = () => {
 
                         <button
                         onClick={nextStep}
-                        className={`px-8 py-3 rounded-lg transition-all font-bold text-xl ${
+                        className={`px-8 py-3 rounded-lg transition-all font-bold ${
                             isNextDisabled
                             ? "bg-gray-300 text-gray-500 cursor-not-allowed"
                             : "bg-orange-300 text-white hover:bg-orange-400"
@@ -426,15 +561,15 @@ const CustomizeMembership = () => {
 
             {step === 3 && (
                 <div className="flex flex-col items-center">
-                    <h1 className="text-6xl mb-6">Choose Your Barber</h1>
+                    <h1 className={`${ isMobile ? ("text-5xl") : ("text-6xl")} mb-6`}>Choose Your Barber</h1>
                     
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full h-full">
+                    <div className={`grid grid-cols-1 md:grid-cols-3 gap-6 w-full h-full ${isMobile ? ("mb-24") : ("")}`}>
                         {barbers.map((barber) => (
                             <div
                                 key={barber.id}
                                 onClick={() => setFormData({ ...formData, preferredBarber: barber.name })}
                                 style={{ boxShadow: '0 0 15px rgba(255, 255, 255, 0.5)' }}
-                                className={`relative border-2 rounded-lg overflow-hidden cursor-pointer transition-all flex flex-col items-center h-[40rem] ${
+                                className={`relative border-2 rounded-lg overflow-hidden cursor-pointer transition-all flex flex-col items-center ${ isMobile ? ("h-[19rem]") : ("h-[40rem]")} ${
                                     formData.preferredBarber === barber.name ? "border-orange-300" : ""
                                 }`}
                             >
@@ -448,15 +583,15 @@ const CustomizeMembership = () => {
                                 </div>
 
                                 {/* Barber Image */}
-                                <img src={barber.image} alt={barber.name} className="w-[80%] mt-8 rounded-lg h-[30rem] object-cover" />
+                                <img src={barber.image} alt={barber.name} className={`w-[90%] mt-10 rounded-lg ${ isMobile ? ("h-[12rem]") : ("h-[30rem]")} object-cover`} />
 
                                 {/* Barber Name */}
-                                <div className="p-4 mt-4 text-center text-3xl font-bold">{barber.name}</div>
+                                <div className={`p-4 ${ isMobile ? ("") : ("mt-4")} text-center text-3xl font-bold`}>{barber.name}</div>
                             </div>
                         ))}
                     </div>
 
-                    <div className="absolute bottom-20 left-20 right-20 flex justify-between p-4 font-bold text-xl mx-auto">
+                    <div className={`absolute ${isMobile ? ("bottom-5 left-2 right-2 text-sm") : ("bottom-20 left-20 right-20 text-xl")} flex justify-between p-4 font-bold mx-auto`}>
                         <button
                             onClick={prevStep}
                             className="bg-gray-400 cursor-pointer text-white px-8 py-3 rounded-lg transition-all hover:bg-gray-500"
@@ -466,7 +601,7 @@ const CustomizeMembership = () => {
 
                         <button
                             onClick={nextStep}
-                            className={`px-8 py-3 rounded-lg transition-all font-bold text-xl ${
+                            className={`px-8 py-3 rounded-lg transition-all font-bold ${
                                 !formData.preferredBarber
                                     ? "bg-gray-300 text-gray-500 cursor-not-allowed"
                                     : "bg-orange-300 text-white hover:bg-orange-400 cursor-pointer"
@@ -481,9 +616,48 @@ const CustomizeMembership = () => {
 
             {step === 4 && (
                 <div className="flex flex-col items-center">
-                    <h1 className="text-6xl">Book Appointments</h1>
-                    <p className="mb-4">To begin your membership, you are required to book the next 2 months in advance.</p>
-                    <div className="flex w-full justify-center space-x-6 max-w-[100rem]">
+                    <h1 className={`${isMobile ? ("text-5xl") : ("text-6xl")}`}>Book Appointments</h1>
+                    <p className={`mb-4 ${isMobile ? ("text-center") : ("")}`}>To begin your membership, you are required to book the next 2 months in advance.</p>
+                    <div
+                        className={`flex w-full justify-center space-x-6 max-w-[100rem] ${
+                            isMobile ? "flex-col space-x-0 space-y-6 mb-16" : "flex-row-reverse"
+                        }`}
+                    >
+                        <div className="bg-white rounded-lg text-black p-6 flex flex-col justify-between w-full">
+                            <div>
+                                <div className="flex justify-between items-center px-2 mb-4">
+                                    <h3 className="font-bold text-lg">Membership Tier</h3>
+                                    <span className="text-orange-300 font-bold text-lg">{member?.membership}</span>
+                                </div>
+                                <p className={`${isMobile ? ("text-center") : ("text-center")} mb-2`}>
+                                    Your {member?.membership} Membership includes a haircut every {member?.membership === "Gold" ? "2" : member?.membership === "Silver" ? "3" : "4"} weeks.
+                                </p>
+                                <p className={`${isMobile ? ("text-center") : ("text-center")} mb-4`}>
+                                    Please schedule {member?.membership === "Gold" ? "4" : member?.membership === "Silver" ? "3" : "2"} appointments to complete your membership.
+                                </p>
+                            </div>
+
+                            <div className={`flex flex-col items-center space-y-4 ${isMobile ? ("my-10") : ("")}`}>
+                                {/* Appointment Progress Indicator */}
+                                <p className="font-bold">Appointments created</p>
+                                <div className="flex justify-center items-center gap-4">
+                                    {Array.from({ length: requiredAppointments }).map((_, index) => (
+                                        <div
+                                            key={index}
+                                            className={`w-4 h-4 rounded-full transition-all ${index < completedAppointments ? "bg-orange-300" : "bg-gray-300"}`}
+                                        ></div>
+                                    ))}
+                                </div>
+                            </div>
+                            <div>
+                                <p className={`text-gray-600 text-center ${isMobile ? ("text-xs mt-4") : ("")}`}>Please Note: The email and phone number used in the booking form must match the info used to register your membership (shown below) or appointments will not be valid.</p>
+                                <div className={`flex justify-center space-x-6 mt-2 ${isMobile ? ("flex-col items-center space-y-2") : ("")}`}>
+                                    <p className={`${isMobile ? ("text-xs") : ("")} text-gray-600`}>Email: {member?.email}</p>
+                                    <p className={`${isMobile ? ("text-xs") : ("")} text-gray-600`}>Phone Number: {member?.phoneNumber}</p>
+                                </div>
+                                <p className="text-gray-600 text-xs text-center mt-2">The +1 phone number prefix can remain in the form. You do not need to remove it.</p>
+                            </div>
+                        </div>
                         {/* Acuity Scheduling Embedded Calendar */}
                         <iframe 
                             src="https://app.acuityscheduling.com/schedule.php?owner=26056634&calendarID=11548211&ref=embedded_csp" 
@@ -497,44 +671,9 @@ const CustomizeMembership = () => {
                             src="https://embed.acuityscheduling.com/js/embed.js" 
                             type="text/javascript"
                         ></script>
-                        <div className="bg-white rounded-lg text-black p-6 flex flex-col justify-between">
-                            <div>
-                                <div className="flex justify-between items-center px-2 mb-4">
-                                    <h3 className="font-bold text-lg">Membership Tier</h3>
-                                    <span className="text-orange-300 font-bold text-lg">{member?.membership}</span>
-                                </div>
-                                <p className="text-center mb-2">
-                                    Your {member?.membership} Membership includes a haircut every {member?.membership === "Gold" ? "2" : member?.membership === "Silver" ? "3" : "4"} weeks.
-                                </p>
-                                <p className="text-center mb-4">
-                                    Please schedule {member?.membership === "Gold" ? "4" : member?.membership === "Silver" ? "3" : "2"} appointments to complete your membership.
-                                </p>
-                            </div>
-
-                            <div className="flex flex-col items-center space-y-4">
-                                {/* Appointment Progress Indicator */}
-                                <p className="font-bold">Appointments created</p>
-                                <div className="flex justify-center items-center gap-4">
-                                    {Array.from({ length: requiredAppointments }).map((_, index) => (
-                                        <div
-                                            key={index}
-                                            className={`w-4 h-4 rounded-full transition-all ${index < completedAppointments ? "bg-orange-300" : "bg-gray-300"}`}
-                                        ></div>
-                                    ))}
-                                </div>
-                            </div>
-                            <div>
-                                <p className="text-gray-600 text-center">Please Note: The email and phone number used in the booking form must match the info used to register your membership (shown below) or appointments will not be valid.</p>
-                                <div className="flex justify-center space-x-6 mt-2">
-                                    <p className="text-gray-600">Email: {member?.email}</p>
-                                    <p className="text-gray-600">Phone Number: {member?.phoneNumber}</p>
-                                </div>
-                                <p className="text-gray-600 text-xs text-center mt-2">The +1 phone number prefix can remain in the form. You do not need to remove it.</p>
-                            </div>
-                        </div>
 
                     </div>
-                    <div className="absolute bottom-20 left-20 right-20 flex justify-between p-4 font-bold text-xl mx-auto">
+                    <div className={`absolute ${isMobile ? ("bottom-5 left-2 right-2 text-sm") : ("bottom-20 left-20 right-20 text-xl")} flex justify-between p-4 font-bold mx-auto`}>
                         <button
                             onClick={prevStep}
                             className="bg-gray-400 cursor-pointer text-white px-8 py-3 rounded-lg transition-all hover:bg-gray-500"
@@ -544,7 +683,7 @@ const CustomizeMembership = () => {
 
                         <button
                             onClick={nextStep}
-                            className={`px-8 py-3 rounded-lg transition-all font-bold text-xl ${
+                            className={`px-8 py-3 rounded-lg transition-all font-bold ${
                                 !formData.preferredBarber || completedAppointments < requiredAppointments
                                     ? "bg-gray-300 text-gray-500 cursor-not-allowed"
                                     : "bg-orange-300 text-white hover:bg-orange-400 cursor-pointer"
