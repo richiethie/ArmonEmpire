@@ -23,6 +23,8 @@ interface FormData {
 const CustomizeMembership = () => {
     const [step, setStep] = useState<number>(1);
     const [member, setMember] = useState<User | null>(null);
+    const [completedAppointments, setCompletedAppointments] = useState<number>(0);
+
     const [formData, setFormData] = useState<FormData>({
         haircut: "",
         wantsDrink: false,
@@ -35,9 +37,6 @@ const CustomizeMembership = () => {
 
     const nextStep = () => setStep((prev) => prev + 1);
     const prevStep = () => setStep((prev) => prev - 1);
-
-    const requiredAppointments = member?.membership === "Gold" ? 4 : member?.membership === "Silver" ? 3 : 2;
-    const completedAppointments = member?.appointments?.length || 0;
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
@@ -76,56 +75,51 @@ const CustomizeMembership = () => {
     };
 
     useEffect(() => {
-        const fetchMemberData = async () => {
-            try {
-                const token = localStorage.getItem("token"); // Retrieve token from local storage
-                const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/user`, {
-                    headers: {
-                        Authorization: `Bearer ${token}`
-                    }
-                });
+        const eventSource = new EventSource(`${import.meta.env.VITE_API_URL}/api/appointments/updates`);
     
-                const data = response.data;
+        eventSource.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+            console.log("New appointment created:", data.appointment);
     
-                setMember({
-                    _id: data._id || "",
-                    firstName: data.firstName || "",
-                    lastName: data.lastName || "",
-                    email: data.email || "",
-                    password: "", // Password should not be autofilled for security reasons
-                    membership: data.membership || "Free",
-                    preferredBarber: data.preferredBarber || "",
-                    drinkOfChoice: data.drinkOfChoice || "",
-                    isOfLegalDrinkingAge: data.isOfLegalDrinkingAge || false,
-                    appointments: data.appointments || [],
-                    phoneNumber: data.phoneNumber || "",
-                    dob: data.dob || "", // Keeping dob in case it's still needed
-                    photoID: null, // Files can't be preloaded, handle this separately
-                    wantsDrink: data.wantsDrink || false, // Assuming this is still relevant
-                });
-            } catch (error) {
-                console.error("Error fetching member data:", error);
-            }
+            // Update the appointments array within formData
+            setFormData((prevFormData) => {
+                const updatedAppointments = [...prevFormData.appointments, data.appointment];
+                return {
+                    ...prevFormData,
+                    appointments: updatedAppointments, // add the new appointment to the array
+                };
+            });
+    
+            // Update the completedAppointments state based on the new number of appointments
+            setCompletedAppointments((prevCompleted) => prevCompleted + 1);
         };
     
-        fetchMemberData();
+        return () => {
+            eventSource.close(); // Clean up when the component is unmounted
+        };
     }, []);
+
+    const requiredAppointments = member?.membership === "Gold" ? 4 : member?.membership === "Silver" ? 3 : 2;
 
     useEffect(() => {
         const eventSource = new EventSource(`${import.meta.env.VITE_API_URL}/api/appointments/updates`);
-      
+    
         eventSource.onmessage = (event) => {
-          const data = JSON.parse(event.data);
-          console.log("New appointment created:", data.appointment);
-          // Update the appointments array within formData
-          setFormData((prevFormData) => ({
-            ...prevFormData,
-            appointments: [...prevFormData.appointments, data.appointment],
-          }));
+            const data = JSON.parse(event.data);
+            console.log("New appointment created:", data.appointment);
+    
+            // Update the appointments array within formData
+            setFormData((prevFormData) => {
+                const updatedAppointments = [...prevFormData.appointments, data.appointment];
+                return {
+                    ...prevFormData,
+                    appointments: updatedAppointments, // add the new appointment to the array
+                };
+            });
         };
-      
+    
         return () => {
-          eventSource.close(); // Clean up when the component is unmounted
+            eventSource.close(); // Clean up when the component is unmounted
         };
     }, []);
     
@@ -471,9 +465,7 @@ const CustomizeMembership = () => {
                                     {Array.from({ length: requiredAppointments }).map((_, index) => (
                                         <div
                                             key={index}
-                                            className={`w-4 h-4 rounded-full transition-all ${
-                                                index < completedAppointments ? "bg-orange-300" : "bg-gray-300"
-                                            }`}
+                                            className={`w-4 h-4 rounded-full transition-all ${index < completedAppointments ? "bg-orange-300" : "bg-gray-300"}`}
                                         ></div>
                                     ))}
                                 </div>
