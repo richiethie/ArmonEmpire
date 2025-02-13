@@ -122,6 +122,9 @@ const CustomizeMembership = () => {
     
             // Destructure status and appointment data
             const { status, appointment } = data;
+
+            console.log("Status: ", status);
+            console.log("appointment: ", appointment);
     
             // Ensure the appointment contains acuityAppointmentId
             if (!appointment.acuityAppointmentId) {
@@ -135,14 +138,14 @@ const CustomizeMembership = () => {
                 let updatedAppointments: Appointment[] = [...prevFormData.appointments];
     
                 // Handle appointment statuss (scheduled, rescheduled, canceled)
-                if (status === "Scheduled" || status === "Rescheduled") {
+                if (status.toLowerCase() === "scheduled" || status.toLowerCase() === "rescheduled") {
                     // Ensure to filter out existing appointments with the same acuityAppointmentId
                     updatedAppointments = updatedAppointments.filter((appt) => appt.acuityAppointmentId !== appointment.acuityAppointmentId);
                     updatedAppointments.push(appointment); // Add the new or rescheduled appointment
                 }
     
                 // If it's canceled, remove the canceled appointment from the array
-                if (status === "Canceled") {
+                if (status.toLowerCase() === "canceled") {
                     updatedAppointments = updatedAppointments.filter((appt) => appt.acuityAppointmentId !== appointment.acuityAppointmentId);
                 }
     
@@ -154,9 +157,9 @@ const CustomizeMembership = () => {
     
             // Update completedAppointments state based on the status type
             setCompletedAppointments((prevCompleted) => {
-                if (status === "Scheduled") {
+                if (status.toLowerCase() === "scheduled") {
                     return prevCompleted + 1; // Increment for new appointment
-                } else if (status === "Canceled") {
+                } else if (status.toLowerCase() === "canceled") {
                     return prevCompleted - 1; // Decrement for canceled appointment
                 } else {
                     return prevCompleted; // No change for rescheduled
@@ -168,6 +171,10 @@ const CustomizeMembership = () => {
             eventSource.close(); // Clean up when the component is unmounted
         };
     }, []);
+
+    useEffect(() => {
+        console.log("Updated Completed Appointments: ", completedAppointments);
+    }, [completedAppointments]); // Runs when completedAppointments changes
     
     
     //POTENTIAL COME BACK TO, REQUIRES ACUITY API ACCESS
