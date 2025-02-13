@@ -82,15 +82,20 @@ router.post('/acuity-webhook', async (req, res) => {
         console.log("Acuity Payload:", appointmentData);
 
         // 🔹 Step 2: Validate required fields before saving
-        if (!appointmentData.datetime || !appointmentData.service || !appointmentData.duration || !appointmentData.email) {
+        if (!appointmentData.datetime || !appointmentData.type || !appointmentData.duration || !appointmentData.email) {
             return res.status(400).json({ message: "Missing required fields from Acuity API" });
+        }
+
+        let phoneNumber = appointmentData.phone;
+        if (phoneNumber.startsWith('+1')) {
+            phoneNumber = phoneNumber.slice(2); // Remove the '+1' prefix
         }
 
         // 🔹 Step 3: Find user in MongoDB by email or phone number
         const user = await User.findOne({
             $or: [
                 { email: appointmentData.email },
-                { phoneNumber: appointmentData.phoneNumber } // Assuming phoneNumber is part of your User schema
+                { phoneNumber: phoneNumber } // Assuming phoneNumber is part of your User schema
             ]
         });
 
@@ -102,8 +107,9 @@ router.post('/acuity-webhook', async (req, res) => {
         const newAppointment = new Appointment({
             userId: user._id,  // Use the found user’s MongoDB _id
             datetime: new Date(appointmentData.datetime),
-            service: appointmentData.service,
+            service: appointmentData.type,
             duration: appointmentData.duration,
+            createdAt: appointmentData.datetimeCreated,
             status: "Scheduled",
         });
 
