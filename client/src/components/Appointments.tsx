@@ -40,7 +40,7 @@ const Appointments = () => {
     };
 
     return (
-        <div className="rounded-lg border border-white p-6 flex flex-col items-center">
+        <div className="rounded-lg bg-gray-100 text-black p-6 flex flex-col items-center">
             <h3 className="text-xl font-semibold mb-4">Upcoming Appointments</h3>
             <Calendar
                 className="rounded-lg text-black bg-gray-800 p-1"

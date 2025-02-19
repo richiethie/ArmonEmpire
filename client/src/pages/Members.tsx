@@ -5,6 +5,7 @@ import { User } from "@/types/User";
 import MemberHeader from "@/components/MemberHeader";
 import axios from "axios";
 import Appointments from "@/components/Appointments";
+import { useIsMobile } from "@/context/MobileContext";
 
 const Members = () => {
     const { user } = useAuth(); // Access current user from the AuthContext
@@ -12,6 +13,8 @@ const Members = () => {
     const [isEditing, setIsEditing] = useState(false);
     const [preferredBarber, setPreferredBarber] = useState<string>(member?.preferredBarber || "");
     const [drinkOfChoice, setDrinkOfChoice] = useState<string>(member?.drinkOfChoice || "");
+
+    const isMobile = useIsMobile();
 
     const handleCancel = () => {
         if (member) {
@@ -85,14 +88,14 @@ const Members = () => {
         <>
             <MemberHeader />
             <div className="bg-black text-crispWhite min-h-screen w-full py-8 mt-20">
-                <div className="flex flex-col w-full px-20">
-                    <h1 className="text-7xl text-center mb-8">Member Center</h1>
+                <div className="flex flex-col w-full px-4 md:px-20">
+                    <h1 className="text-5xl md:text-7xl text-center mb-8">Member Center</h1>
 
                     <div className="w-full">
                         {user ? (
-                            <div className="flex items-center justify-between mb-6 text-start">
-                                <h2 className="text-2xl font-semibold">Welcome, {member?.firstName}!</h2>
-                                <p className="mt-2 text-sm">{member?.membership} member</p>
+                            <div className="flex items-center justify-between px-1 mb-2 md:b-6 text-start">
+                                <h2 className="text-lg md:text-2xl font-semibold">Welcome, {member?.firstName}!</h2>
+                                <p className="text-lg"><span className="text-orange-300">{member?.membership}</span> member</p>
                             </div>
                         ) : (
                             <div className="text-center text-lg text-orange-300">
@@ -102,24 +105,43 @@ const Members = () => {
                         {/* Membership hub */}
                         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
                             {/* Left Column - Membership Hub */}
-                            <div className="rounded-lg border border-white p-6">
+                            <div className="rounded-lg bg-gray-100 text-black p-6">
                                 <h3 className="text-2xl text-center font-semibold mb-4">Your account</h3>
                                 <div className="space-y-4">
                                     {member ? (
-                                        <div key={member._id} className="p-4 rounded-lg">
+                                        <div key={member._id} className="p-2 md:p-4 rounded-lg">
                                             <>
-                                                <h4 className="text-xl font-semibold">{member.firstName} {member.lastName}</h4>
-                                                <p className="my-4 text-xl font-semibold text-gray-400">{member.email}</p>
+                                                {/* COME BACK TO HANDLE UPDATE */}
+                                                {isEditing ? (
+                                                    <div className="flex items-center space-x-2">
+                                                        <input type="text" value={member.firstName} className={`p-2 w-[40%] my-2 rounded bg-gray-800 text-white ${!isEditing && "opacity-30 cursor-not-allowed"}`} />
+                                                        <input type="text" value={member.lastName} className={`p-2 w-[60%] my-2 rounded bg-gray-800 text-white ${!isEditing && "opacity-30 cursor-not-allowed"}`} />
+                                                    </div>
+                                                ) : (
+                                                    <div className="flex items-center space-x-2">
+                                                        <input disabled type="text" value={member.firstName} className={`p-2 w-[40%] my-2 rounded bg-gray-800 text-white ${!isEditing && "opacity-30 cursor-not-allowed"}`} />
+                                                        <input disabled type="text" value={member.lastName} className={`p-2 w-[60%] my-2 rounded bg-gray-800 text-white ${!isEditing && "opacity-30 cursor-not-allowed"}`} />
+                                                    </div>
+                                                )}
+                                                {isEditing ? (
+                                                    <input type="text" value={member.email} className={`p-2 w-full my-2 rounded bg-gray-800 text-white ${!isEditing && "opacity-30 cursor-not-allowed"}`} />
+                                                ) : (
+                                                    <input disabled type="text" value={member.email} className={`p-2 w-full my-2 rounded bg-gray-800 text-white ${!isEditing && "opacity-30 cursor-not-allowed"}`} />
+                                                )}
                                                 <div className="flex justify-between items-center my-2">
                                                     <p className="text-xl font-semibold">Membership tier: </p>
                                                     <p className="text-xl font-bold text-orange-300">{member.membership}</p>
                                                 </div>
 
+                                                {isEditing && (
+                                                    <button className="cursor-pointer bg-orange-300 text-white px-4 py-2 rounded w-full">Change Membership</button>
+                                                )}
+
                                                 <label className="block mt-6 text-xl mb-2 font-semibold">Preferred Barber:</label>
                                                 <select 
                                                     value={preferredBarber} 
                                                     onChange={(e) => setPreferredBarber(e.target.value)} 
-                                                    className={`p-2 w-full rounded bg-gray-800 text-white ${!isEditing && "opacity-50 cursor-not-allowed"}`}
+                                                    className={`p-2 w-full rounded bg-gray-800 text-white ${!isEditing && "opacity-30 cursor-not-allowed"}`}
                                                     disabled={!isEditing}
                                                 >
                                                     <option value="" disabled>Select a Barber</option>
@@ -132,7 +154,7 @@ const Members = () => {
                                                 <select 
                                                     value={drinkOfChoice} 
                                                     onChange={(e) => setDrinkOfChoice(e.target.value)} 
-                                                    className={`p-2 w-full my-2 rounded bg-gray-800 text-white ${!isEditing && "opacity-50 cursor-not-allowed"}`}
+                                                    className={`p-2 w-full my-2 rounded bg-gray-800 text-white ${!isEditing && "opacity-30 cursor-not-allowed"}`}
                                                     disabled={!isEditing}
                                                 >
                                                     <option value="" disabled>Select a Drink</option>
@@ -188,10 +210,10 @@ const Members = () => {
                             {/* Center Column - Book Appointment & Check-In */}
                             <div className="space-y-6 md:col-span-2">
                                 {/* Book an Appointment */}
-                                <div className="rounded-lg border border-white p-8 bg-charcoal">
+                                <div className="rounded-lg bg-gray-100 text-black p-2 md:p-8 bg-charcoal">
                                     {/* Book an Appointment Header */}
-                                    <h3 className="text-xl text-center font-bold mb-4">
-                                        Book an Appointment with <span className="text-orange-300">{member?.preferredBarber || "Your Preferred Barber"}</span>
+                                    <h3 className={`text-xl text-center font-bold mb-4 ${isMobile && ("mt-2")}`}>
+                                        Book with <span className="text-orange-300">{member?.preferredBarber || "Your Preferred Barber"}</span>
                                     </h3>
 
                                     {/* Embed Acuity Scheduling iframe */}
@@ -215,7 +237,7 @@ const Members = () => {
                             {/* Right Column - Loyalty & Shop */}
                             <div className="space-y-6">
                                 {/* Check-In System */}
-                                <div className="rounded-lg border border-white p-10 bg-charcoal text-center">
+                                <div className="rounded-lg bg-gray-100 text-black p-10 bg-charcoal text-center">
                                     <h3 className="text-xl font-semibold mb-4">Check-In</h3>
                                     <button className="w-full bg-green-500 p-2 rounded text-white">I'm Here</button>
                                     <p className="mt-2 text-gray-400">Estimated wait time: ~10 min</p>
@@ -224,8 +246,11 @@ const Members = () => {
                                 <Appointments />
                                 
                                 {/* Loyalty Points */}
-                                <div className="rounded-lg border border-white p-6 bg-charcoal text-center">
-                                    <h3 className="text-xl font-semibold mb-4">Specialty Services</h3>
+                                <div className="rounded-lg bg-gray-100 text-black p-6 bg-charcoal text-center">
+                                    <h3 className="text-xl font-semibold mb-2">Specialty Services</h3>
+                                    <div className="flex justify-center text-gray-500">
+                                        <p>Cosmetology | SMYLEXO</p>
+                                    </div>
                                     <button 
                                         className="mt-6 cursor-pointer bg-orange-300 text-white px-4 py-2 rounded w-full" 
                                         onClick={() => console.log("Hello")}

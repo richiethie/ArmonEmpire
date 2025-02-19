@@ -8,6 +8,14 @@ import axios from "axios";
 import { User } from "@/types/User";
 import { Appointment } from "@/types/Appointment";
 import { useIsMobile } from "@/context/MobileContext";
+import { useNavigate } from "react-router-dom";
+import ArmonEmpireLogo from "../assets/img/ArmonEmpireLogo.png";
+
+import { Elements } from "@stripe/react-stripe-js";
+import { loadStripe } from "@stripe/stripe-js";
+import CheckoutForm from "../components/CheckoutForm";
+
+const stripePromise = loadStripe(`${import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY}`);
 
 interface FormData {
   haircut: string;
@@ -25,9 +33,10 @@ interface FormData {
 const CustomizeMembership = () => {
     const [step, setStep] = useState<number>(1);
     const [member, setMember] = useState<User | null>(null);
-    const [completedAppointments, setCompletedAppointments] = useState<number>(0);
+    const [completedAppointments, setCompletedAppointments] = useState<number>(4);
 
     const isMobile = useIsMobile();
+    const navigate = useNavigate();
 
     const [formData, setFormData] = useState<FormData>({
         haircut: "",
@@ -77,6 +86,17 @@ const CustomizeMembership = () => {
     
         return age;
     };
+
+    useEffect(() => {
+        const script = document.createElement('script');
+        script.src = "https://js.stripe.com/v3/";
+        script.async = true;
+        document.body.appendChild(script);
+        
+        return () => {
+          document.body.removeChild(script);
+        };
+    }, []);
 
     useEffect(() => {
         const fetchMemberData = async () => {
@@ -238,9 +258,9 @@ const CustomizeMembership = () => {
                                 <img
                                     src={cut.image}
                                     alt={cut.name}
-                                    className="w-full h-32 md:h-40 object-cover rounded-md"
+                                    className="w-full h-60 md:h-40 object-cover rounded-md"
                                 />
-                                <h3 className="text-base md:text-lg font-semibold mt-2">{cut.name}</h3>
+                                <h3 className="text-center md:text-lg font-semibold mt-2">{cut.name}</h3>
                                 <button
                                     className={`mt-2 w-full py-2 cursor-pointer rounded text-white ${
                                         formData.haircut === cut.id ? "bg-orange-300" : "bg-gray-700 hover:bg-orange-400"
@@ -271,8 +291,13 @@ const CustomizeMembership = () => {
                         </div>
                     </div>
 
-                    {/* Next Button */}
-                    <div className="flex justify-end mt-6">
+                    <div className="flex justify-between mt-6">
+                        <button
+                            onClick={() => navigate('/select-membership')}
+                            className="py-2 px-6 md:px-8 rounded text-white text-lg md:text-xl font-bold bg-gray-500 hover:bg-gray-600 transition-all"
+                        >
+                            Back
+                        </button>
                         <button
                             onClick={nextStep}
                             disabled={!formData.haircut || (formData.haircut === "Other" && !formData.haircut.trim())}
@@ -547,7 +572,7 @@ const CustomizeMembership = () => {
                     <div className={`absolute ${isMobile ? ("bottom-5 left-2 right-2 text-sm") : ("bottom-20 left-20 right-20 text-xl")} flex justify-between p-4 font-bold mx-auto`}>
                         <button
                             onClick={prevStep}
-                            className="bg-gray-400 text-white px-8 py-3 rounded-lg transition-all hover:bg-gray-500"
+                            className="bg-gray-400 text-white px-8 py-3 rounded-lg cursor-pointer transition-all hover:bg-gray-500"
                         >
                             Back
                         </button>
@@ -557,7 +582,7 @@ const CustomizeMembership = () => {
                         className={`px-8 py-3 rounded-lg transition-all font-bold ${
                             isNextDisabled
                             ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                            : "bg-orange-300 text-white hover:bg-orange-400"
+                            : "bg-orange-300 text-white hover:bg-orange-400 cursor-pointer"
                         }`}
                         disabled={isNextDisabled}
                         >
@@ -706,11 +731,11 @@ const CustomizeMembership = () => {
 
             {step === 5 && (
                 <div className="flex flex-col items-center text-black">
-                    <h1 className="text-6xl text-white">Review your selections</h1>
-                    <div className="flex space-x-6">
+                    <h1 className="text-4xl md:text-6xl text-white">Review your selections</h1>
+                    <div className={`flex ${isMobile ? "flex-col" : "flex-row space-x-6"} `}>
                         {/* Your Information Card */}
-                        <div className="bg-white shadow-lg rounded-lg p-6 mt-6 w-2xl space-y-4 max-w-xl">
-                            <h2 className="text-2xl font-bold mb-4 text-center">Your Information</h2>
+                        <div className="bg-white shadow-lg rounded-lg p-6 mt-6 w-full md:w-2xl space-y-4 max-w-xl">
+                            <h2 className="text-xl md:text-2xl font-bold mb-6 text-center">Your Information</h2>
                             <p><strong>First Name:</strong> {member?.firstName}</p>
                             <p><strong>Last Name:</strong> {member?.lastName}</p>
                             <p><strong>Email:</strong> {member?.email}</p>
@@ -718,8 +743,8 @@ const CustomizeMembership = () => {
                         </div>
 
                         {/* Booking Details Card */}
-                        <div className="bg-white shadow-lg rounded-lg p-6 mt-6 w-2xl space-y-4 text-nowrap">
-                            <h2 className="text-2xl font-bold mb-4 text-center">Membership Details</h2>
+                        <div className="bg-white shadow-lg rounded-lg p-6 mt-6 w-full md:w-2xl space-y-4 text-nowrap">
+                            <h2 className="text-xl md:text-2xl font-bold mb-6 text-center">Membership Details</h2>
                             <p><strong>Haircut:</strong> {formData.haircut.charAt(0).toUpperCase() + formData.haircut.slice(1)}</p>
                             <p><strong>Drink:</strong> {formData.wantsDrink ? formData.drinkOfChoice : "No drink selected"}</p>
                             <p><strong>Barber:</strong> {formData.preferredBarber}</p>
@@ -729,7 +754,7 @@ const CustomizeMembership = () => {
                     </div>
 
                     {/* Navigation Buttons */}
-                    <div className="absolute bottom-20 left-20 right-20 flex justify-between p-4 font-bold text-xl mx-auto">
+                    <div className={`absolute ${isMobile ? ("bottom-5 left-2 right-2 text-sm") : ("bottom-20 left-20 right-20 text-xl")} flex justify-between p-4 font-bold mx-auto`}>
                         <button
                             onClick={prevStep}
                             className="bg-gray-400 cursor-pointer text-white px-8 py-3 rounded-lg transition-all hover:bg-gray-500"
@@ -739,7 +764,7 @@ const CustomizeMembership = () => {
 
                         <button
                             onClick={nextStep}
-                            className={`px-8 py-3 rounded-lg transition-all font-bold text-xl ${
+                            className={`px-8 py-3 rounded-lg transition-all font-bold ${
                                 !formData.preferredBarber
                                     ? "bg-gray-300 text-gray-500 cursor-not-allowed"
                                     : "bg-orange-300 text-white hover:bg-orange-400 cursor-pointer"
@@ -753,30 +778,66 @@ const CustomizeMembership = () => {
             )}
 
             {step === 6 && (
-                <div>
-                    <h2 className="text-xl font-bold">Step 6: Checkout</h2>
+                <div className="flex flex-col items-center justify-center">
+                    <h1 className="text-6xl">Checkout</h1>
                     <p>Set up your monthly membership payment.</p>
-                    {/* Placeholder for Stripe integration */}
-                    <button className="mt-4 bg-green-500 text-white p-2">Subscribe</button>
+
+                    {/* CHECKOUT */}
+                    <div className={`flex ${isMobile ? "flex-col mb-15" : "flex-row space-x-4"} `}>
+                        <div className={`flex flex-col justify-between ${isMobile ? "w-[full]" : "w-[30rem]"} bg-white text-black p-6 rounded-lg my-4`}>
+                            <div className="flex flex-col space-y-2">
+                                <div className="flex justify-center items-center mb-4">
+                                    <img src={ArmonEmpireLogo} alt="Armon Empire Logo" className={`${isMobile ? ("h-25") : ("h-30")}`} />
+                                </div>
+                                <div className="flex items-center justify-between">
+                                    <h2 className="font-semibold">Membership</h2>
+                                    <p className="text-orange-300 font-bold">{member?.membership}</p>
+                                </div>
+                                <div className="flex items-center justify-between">
+                                    <h2 className="font-semibold">Price</h2>
+                                    <p>$90/mo</p>
+                                </div>
+                                <h2 className="font-semibold ">Benefits</h2>
+                                <div className="flex flex-col space-y-2 my-2">    
+                                    <p>
+                                        • Haircut every{" "}
+                                        {member?.membership === "Gold"
+                                            ? "2 weeks"
+                                            : member?.membership === "Silver"
+                                            ? "3 weeks"
+                                            : member?.membership === "Bronze"
+                                            ? "4 weeks"
+                                            : "N/A"}
+                                    </p>
+                                    <p>• Complimentary drinks provided</p>
+                                    <p>• Savings on specialty services</p>
+                                    <p>• No overtime fees on late bookings</p>
+                                    <p>• No fees for last-minute bookings</p>
+                                </div>
+                            </div>
+                            <div>
+                                <div className="flex justify-between border-t-2 pt-4 mt-4">
+                                    <h2 className="text-lg font-bold">Total due today:</h2>
+                                    <p className="text-xl font-bold">$94.95</p>
+                                </div>
+                                <p className="text-gray-500 text-xs mt-3 text-center">Memberships are charged to the card saved as a monthly recurring bill.</p>
+                            </div>
+                        </div>
+                        <div className="flex bg-white text-black p-6 rounded-lg my-4">
+                            
+                            <Elements stripe={stripePromise}>
+                                <CheckoutForm />
+                            </Elements>
+                        </div>
+                    </div>
+
                     {/* Navigation Buttons */}
-                    <div className="absolute bottom-20 left-20 right-20 flex justify-between p-4 font-bold text-xl mx-auto">
+                    <div className={`absolute ${isMobile ? ("bottom-5 left-2 right-2 text-sm") : ("bottom-20 left-20 right-20 text-xl")} flex justify-between p-4 font-bold mx-auto`}>
                         <button
                             onClick={prevStep}
                             className="bg-gray-400 cursor-pointer text-white px-8 py-3 rounded-lg transition-all hover:bg-gray-500"
                         >
                             Back
-                        </button>
-
-                        <button
-                            onClick={nextStep}
-                            className={`px-8 py-3 rounded-lg transition-all font-bold text-xl ${
-                                !formData.preferredBarber
-                                    ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                                    : "bg-orange-300 text-white hover:bg-orange-400 cursor-pointer"
-                            }`}
-                            disabled={!formData.preferredBarber} // Disable if no barber is selected
-                        >
-                            Proceed to payment
                         </button>
                     </div>
                 </div>
