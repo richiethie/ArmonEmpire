@@ -139,7 +139,7 @@ const Members = () => {
         // Minimum loading duration
         const loaderTimeout = setTimeout(() => {
           setIsLoading(false); // Force stop loader after 2 seconds minimum
-        }, 4000); // Adjust 2000ms (2 seconds) based on your desired loader duration
+        }, 2000); // Adjust 2000ms (2 seconds) based on your desired loader duration
     
         // Cleanup timeout
         return () => clearTimeout(loaderTimeout);

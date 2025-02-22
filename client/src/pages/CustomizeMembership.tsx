@@ -87,6 +87,14 @@ const CustomizeMembership = () => {
         return age;
     };
 
+    const priceMap = {
+        Gold: 90.00,
+        Silver: 62.50,
+        Bronze: 45.00
+    };
+
+    const displayAmount = priceMap[member?.membership as keyof typeof priceMap] || 0;
+
     useEffect(() => {
         const script = document.createElement('script');
         script.src = "https://js.stripe.com/v3/";
@@ -841,7 +849,7 @@ const CustomizeMembership = () => {
                             <div>
                                 <div className="flex justify-between border-t-2 pt-4 mt-4">
                                     <h2 className="text-lg font-bold">Total due today:</h2>
-                                    <p className="text-xl font-bold">$94.95</p>
+                                    <p className="text-xl font-bold">${displayAmount.toFixed(2)}</p>
                                 </div>
                                 <p className="text-gray-500 text-xs mt-3 text-center">Memberships are charged to the card saved as a monthly recurring bill.</p>
                             </div>
@@ -849,7 +857,7 @@ const CustomizeMembership = () => {
                         <div className="flex bg-white text-black p-6 rounded-lg my-4">
                             
                             <Elements stripe={stripePromise}>
-                                <CheckoutForm />
+                                <CheckoutForm member={member} />
                             </Elements>
                         </div>
                     </div>

@@ -20,6 +20,10 @@ const UserSchema = new mongoose.Schema(
     },
     verifiedId: { type: Boolean, default: false },
     isAdmin: { type: Boolean, default: false },
+
+    // Stripe Integration
+    stripeCustomerId: { type: String, default: null }, // Stores Stripe customer ID
+    subscriptionId: { type: String, default: null }, // Stores Stripe subscription ID
   },
   { timestamps: true }
 );

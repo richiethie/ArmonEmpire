@@ -1,19 +1,28 @@
 const express = require("express");
 const Stripe = require("stripe");
 const dotenv = require("dotenv");
+const User = require("../models/User");
 
 dotenv.config();
 
 const router = express.Router();
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
+const priceMap = {
+    Gold: "price_1QtzuJKwDDaoYcMewTLSjUxU",
+    Silver: "price_1QvAJ4KwDDaoYcMe8hOJQQHO",
+    Bronze: "price_1QvAJPKwDDaoYcMefuHEuthL",
+};
+
 router.post("/create-payment-intent", async (req, res) => {
     try {
-        const { priceId } = req.body;
+        const { membership } = req.body;
 
-        if (!priceId) {
-            return res.status(400).json({ error: "Missing priceId" });
+        if (!membership) {
+            return res.status(400).json({ error: "Missing membership" });
         }
+
+        const priceId = priceMap[membership];
 
         // Fetch product details
         const price = await stripe.prices.retrieve(priceId);
@@ -28,7 +37,8 @@ router.post("/create-payment-intent", async (req, res) => {
 
         console.log("Payment Intent Created:", paymentIntent);
 
-        res.json({ clientSecret: paymentIntent.client_secret });
+        // Send back both the clientSecret and amount
+        res.json({ clientSecret: paymentIntent.client_secret, amount });
     } catch (error) {
         console.error("Stripe Payment Intent Error:", error);
         res.status(500).json({ error: error.message });
@@ -37,39 +47,51 @@ router.post("/create-payment-intent", async (req, res) => {
 
 router.post("/create-subscription", async (req, res) => {
     try {
-        const { email, paymentMethodId, priceId } = req.body;
+        const { email, membership } = req.body;
 
-        if (!email || !paymentMethodId || !priceId) {
-            return res.status(400).json({ error: "Missing required fields" });
+        if (!priceMap[membership]) {
+            return res.status(400).json({ error: "Invalid membership type" });
         }
 
-        // Check if customer exists
-        const customers = await stripe.customers.list({ email, limit: 1 });
-        let customer = customers.data.length ? customers.data[0] : null;
-
-        if (!customer) {
-            // Create a new customer
-            customer = await stripe.customers.create({ email, payment_method: paymentMethodId });
+        // Find user in DB
+        let user = await User.findOne({ email });
+        if (!user) {
+            return res.status(404).json({ error: "User not found" });
         }
 
-        // Attach payment method
-        await stripe.paymentMethods.attach(paymentMethodId, { customer: customer.id });
-
-        // Set default payment method for the customer
-        await stripe.customers.update(customer.id, {
-            invoice_settings: { default_payment_method: paymentMethodId },
+        // Create customer in Stripe with metadata
+        const customer = await stripe.customers.create({
+            email,
+            name: `${user.firstName} ${user.lastName}`, // Full name
+            phone: user.phoneNumber, // Store phone number
+            invoice_settings: { default_payment_method: null },
+            metadata: {
+                userId: user._id.toString(),
+                membership: membership,
+                phoneNumber: user.phoneNumber,
+            },
+            description: `Customer for ${email} - ${membership} plan`,
         });
 
-        // Create subscription
+        // Create subscription with default_incomplete behavior
         const subscription = await stripe.subscriptions.create({
             customer: customer.id,
-            items: [{ price: priceId }],
+            items: [{ price: priceMap[membership] }],
+            payment_behavior: 'default_incomplete',
             expand: ["latest_invoice.payment_intent"],
         });
 
-        res.json({ clientSecret: subscription.latest_invoice.payment_intent.client_secret });
+        // Save Stripe details to user in DB
+        user.stripeCustomerId = customer.id;
+        user.subscriptionId = subscription.id;
+        await user.save();
+
+        res.json({ 
+            subscriptionId: subscription.id, 
+            clientSecret: subscription.latest_invoice.payment_intent.client_secret 
+        });
     } catch (error) {
-        console.error("Error creating subscription:", error);
+        console.error(error);
         res.status(500).json({ error: error.message });
     }
 });
