@@ -10,7 +10,15 @@ export interface User {
     isOfLegalDrinkingAge: boolean;
     appointments: string[]; // Array of appointment IDs (references)
     phoneNumber: string;
-    dob: string; // Assuming this is stored as a string (e.g., "YYYY-MM-DD")
-    wantsDrink: boolean;
-    photoID?: File | null; // Optional field, cannot be preloaded
+    photoId?: {  // Matches the backend schema structure for photoId
+        data: Buffer;  // Storing as buffer on the backend
+        contentType: string;  // Content type for the image (e.g., "image/jpeg")
+        fileName: string;  // Name of the file
+    } | null; // Optional field, can be null
+    verifiedId: boolean; // Matches the backend field
+    isAdmin: boolean; // Matches the backend field
+    createdAt: string; // Timestamp of creation (if needed in frontend)
+    updatedAt: string; // Timestamp of last update (if needed in frontend)
+    dob: string; // Assuming date of birth is stored as a string (e.g., "YYYY-MM-DD")
+    wantsDrink: boolean; // Matches the schema logic for drink preference
 }

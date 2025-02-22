@@ -1,0 +1,50 @@
+/* Black overlay animations: slide up and down */
+
+/* For mobile, use 100vh so the overlays fully leave the viewport */
+@keyframes moveUp {
+    from { transform: translateY(0); }
+    to { transform: translateY(-100vh); }
+  }
+  
+  @keyframes moveDown {
+    from { transform: translateY(0); }
+    to { transform: translateY(100vh); }
+  }
+  
+  .animate-move-up {
+    animation: moveUp 2s ease-in-out forwards;
+  }
+  
+  .animate-move-down {
+    animation: moveDown 2s ease-in-out forwards;
+  }
+  
+  /* Fade-out animation for the entire loader (triggered at 3s) */
+  @keyframes fadeOut {
+    from { opacity: 1; }
+    to { opacity: 0; }
+  }
+  
+  .fade-out {
+    animation: fadeOut 1s forwards;
+  }
+  
+  /* Loading dots: 4 circles that flash sequentially */
+  .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: #d1d5db; /* Light gray */
+    animation: dotFlash 1s infinite;
+  }
+  
+  .dot:nth-child(1) { animation-delay: 0s; }
+  .dot:nth-child(2) { animation-delay: 0.2s; }
+  .dot:nth-child(3) { animation-delay: 0.4s; }
+  .dot:nth-child(4) { animation-delay: 0.6s; }
+  
+  @keyframes dotFlash {
+    0%, 100% { background-color: #d1d5db; }
+    50% { background-color: #6b7280; } /* Darker gray */
+  }
+  

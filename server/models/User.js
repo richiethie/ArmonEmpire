@@ -13,6 +13,13 @@ const UserSchema = new mongoose.Schema(
     isOfLegalDrinkingAge: { type: Boolean, default: false },
     appointments: [{ type: mongoose.Schema.Types.ObjectId, ref: "Appointment" }],  // Reference to Appointment model
     phoneNumber: { type: String, required: true, unique: true },
+    photoId: { 
+      data: Buffer, 
+      contentType: String,
+      fileName: String, 
+    },
+    verifiedId: { type: Boolean, default: false },
+    isAdmin: { type: Boolean, default: false },
   },
   { timestamps: true }
 );

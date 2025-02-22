@@ -4,7 +4,11 @@ const router = express.Router();
 const User = require("../models/User"); // Import your User model
 const jwt = require("jsonwebtoken");
 const dotenv = require("dotenv");
+const multer = require('multer');
 dotenv.config();
+
+const storage = multer.memoryStorage();
+const upload = multer({ storage: storage });
 
 // Middleware to check if the user is authenticated using JWT
 const authenticateJWT = (req, res, next) => {
@@ -61,27 +65,63 @@ router.post("/update-membership", authenticateJWT, async (req, res) => {
 });
 
 // Update user preferences
-router.put("/update", authenticateJWT, async (req, res) => {
-    try {
-        const userId = req.user.id; // Extract user ID from auth token
-        const { preferredBarber, drinkOfChoice } = req.body;
+router.put("/update", authenticateJWT, upload.single('photoID'), async (req, res) => {
+  try {
+      const userId = req.user.id; // Extract user ID from auth token
+      const { preferredBarber, drinkOfChoice, firstName, lastName, email, photoIDName } = req.body;
 
-        // Find and update the user
-        const updatedUser = await User.findByIdAndUpdate(
-            userId,
-            { preferredBarber, drinkOfChoice },
-            { new: true, runValidators: true }
-        );
+      // Initialize an object to store the update fields
+      const updateFields = {
+          preferredBarber,
+          drinkOfChoice,
+          firstName,
+          lastName,
+          email,
+      };
 
-        if (!updatedUser) {
-            return res.status(404).json({ message: "User not found" });
-        }
+      // If a photo has been uploaded, add it to the update object
+      if (req.file) {
+          updateFields.photoId = {
+              data: req.file.buffer,  // File content as Buffer
+              contentType: req.file.mimetype, // File type (e.g., image/jpeg)
+              fileName: photoIDName,
+          };
+      }
 
-        res.json({ message: "Profile updated successfully", user: updatedUser });
-    } catch (error) {
-        console.error("Error updating user:", error);
-        res.status(500).json({ message: "Server error" });
-    }
+      // Find and update the user
+      const updatedUser = await User.findByIdAndUpdate(
+          userId,
+          updateFields,
+          { new: true, runValidators: true }
+      );
+
+      if (!updatedUser) {
+          return res.status(404).json({ message: "User not found" });
+      }
+
+      res.json({ message: "Profile updated successfully", user: updatedUser });
+  } catch (error) {
+      console.error("Error updating user:", error);
+      res.status(500).json({ message: "Server error" });
+  }
+});
+
+router.post("/upload-photo-id", upload.single("photo"), async (req, res) => {
+  try {
+    const user = await User.findById(req.body.userId); // Get user by ID
+    if (!user) return res.status(404).json({ error: "User not found" });
+
+    // Save photo ID data
+    user.photoId = {
+      data: req.file.buffer,
+      contentType: req.file.mimetype,
+    };
+    
+    await user.save();
+    res.status(200).json({ message: "Photo ID uploaded successfully!" });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to upload photo ID" });
+  }
 });
 
 module.exports = router;

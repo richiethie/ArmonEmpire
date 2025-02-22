@@ -7,7 +7,7 @@ import { IoClose, IoLink } from "react-icons/io5";
 
 const MemberHeader = () => {
   const navigate = useNavigate();
-  const { user, isAuthenticated } = useAuth(); // Get user authentication status
+  const { user, isAuthenticated, logout } = useAuth(); // Get user authentication status
   const [isDrawerOpen, setDrawerOpen] = useState(false);
 
   const toggleDrawer = () => setDrawerOpen((prev) => !prev);
@@ -42,7 +42,8 @@ const MemberHeader = () => {
       {/* Mobile Drawer */}
       {isDrawerOpen && (
         <div className="fixed inset-0 bg-black/75 z-20 flex">
-          <aside className="bg-black w-full md:w-[30rem] h-full p-4 overflow-y-scroll fixed top-0 md:right-0 md:rounded-l-lg shadow-lg">
+          <aside className="bg-black w-full md:w-[30rem] h-full p-4 overflow-y-auto fixed top-0 md:right-0 md:rounded-l-lg shadow-lg flex flex-col">
+            {/* Header Section */}
             <div className="flex justify-between items-center mb-4">
               <div 
                 onClick={() => {
@@ -65,42 +66,50 @@ const MemberHeader = () => {
               </button>
             </div>
 
-            {/* Drawer Navigation Links */}
-            <nav className="flex flex-col items-center justify-center mt-12">
-              <Link to="/" onClick={toggleDrawer} className="text-3xl text-white font-bold hover:text-orange-300 py-6 block">Home</Link>
-              <Link to="/services" onClick={toggleDrawer} className="text-3xl text-white font-bold hover:text-orange-300 py-6 block">Services</Link>
-              <Link to="/schedule" onClick={toggleDrawer} className="text-3xl text-white font-bold hover:text-orange-300 py-6 block">Schedule</Link>
-              <Link to="/gallery" onClick={toggleDrawer} className="text-3xl text-white font-bold hover:text-orange-300 py-6 block">Gallery</Link>
-              <Link to="/location" onClick={toggleDrawer} className="text-3xl text-white font-bold hover:text-orange-300 py-6 block">Location</Link>
-            </nav>
+            {/* Drawer Content - Takes Up Space */}
+            <div className="flex flex-col flex-grow">
+              {/* Drawer Navigation Links */}
+              <nav className="flex flex-col items-center justify-center mt-12">
+                <Link to="/" onClick={toggleDrawer} className="text-3xl text-white font-bold hover:text-orange-300 py-6 block">Home</Link>
+                <Link to="/services" onClick={toggleDrawer} className="text-3xl text-white font-bold hover:text-orange-300 py-6 block">Services</Link>
+                <Link to="/schedule" onClick={toggleDrawer} className="text-3xl text-white font-bold hover:text-orange-300 py-6 block">Schedule</Link>
+                <Link to="/gallery" onClick={toggleDrawer} className="text-3xl text-white font-bold hover:text-orange-300 py-6 block">Gallery</Link>
+                <Link to="/location" onClick={toggleDrawer} className="text-3xl text-white font-bold hover:text-orange-300 py-6 block">Location</Link>
+              </nav>
 
-            {/* Member Login / Member Center Button */}
-            <div className="text-center mt-6">
-              <button 
-                onClick={() => {
-                  navigate(isAuthenticated ? "/members" : "/login");
-                  toggleDrawer();
-                }} 
-                className="text-white text-xl font-semibold border border-white px-4 py-2 rounded-md cursor-pointer hover:text-orange-300 hover:border-orange-300"
-              >
-                {isAuthenticated ? "Member Center" : "Member Login"}
-              </button>
+              {/* Member Login / Member Center Button */}
+              <div className="text-center mt-6">
+                <button 
+                  onClick={() => {
+                    navigate(isAuthenticated ? "/members" : "/login");
+                    toggleDrawer();
+                  }} 
+                  className="text-white text-xl font-semibold border border-white px-4 py-2 rounded-md cursor-pointer hover:text-orange-300 hover:border-orange-300"
+                >
+                  {isAuthenticated ? "Member Center" : "Member Login"}
+                </button>
+              </div>
             </div>
 
-            {/* Social Media Links */}
-            <div className="flex items-center justify-center space-x-4 mt-12">
-              <a href="https://www.facebook.com/charlie.armon" target="_blank" rel="noopener noreferrer">
-                <FaFacebook size={30} className="hover:text-orange-300" />
-              </a>
-              <a href="https://www.instagram.com/charlesarmon" target="_blank" rel="noopener noreferrer">
-                <FaInstagram size={30} className="hover:text-orange-300" />
-              </a>
-              <a href="https://www.snapchat.com/add/gucci.swag" target="_blank" rel="noopener noreferrer">
-                <FaSnapchatGhost size={30} className="hover:text-orange-300" />
-              </a>
-              <a href="https://g.co/kgs/VcQfsb" target="_blank" rel="noopener noreferrer">
-                <IoLink size={30} className="hover:text-orange-300" />
-              </a>
+            {/* Social Media Links at Bottom */}
+            <div className="mt-auto pt-6 mb-6 flex flex-col">
+              <div className="flex justify-center mb-6">
+                  <button onClick={logout} className="text-white text-xl font-semibold border border-white px-4 py-2 rounded-md cursor-pointer hover:text-orange-300 hover:border-orange-300">Logout</button>
+              </div>
+              <div className="flex items-center justify-center space-x-4">
+                <a href="https://www.facebook.com/charlie.armon" target="_blank" rel="noopener noreferrer">
+                  <FaFacebook size={30} className="hover:text-orange-300" />
+                </a>
+                <a href="https://www.instagram.com/charlesarmon" target="_blank" rel="noopener noreferrer">
+                  <FaInstagram size={30} className="hover:text-orange-300" />
+                </a>
+                <a href="https://www.snapchat.com/add/gucci.swag" target="_blank" rel="noopener noreferrer">
+                  <FaSnapchatGhost size={30} className="hover:text-orange-300" />
+                </a>
+                <a href="https://g.co/kgs/VcQfsb" target="_blank" rel="noopener noreferrer">
+                  <IoLink size={30} className="hover:text-orange-300" />
+                </a>
+              </div>
             </div>
           </aside>
 

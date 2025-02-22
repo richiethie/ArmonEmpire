@@ -122,10 +122,20 @@ const CustomizeMembership = () => {
                     isOfLegalDrinkingAge: data.isOfLegalDrinkingAge || false,
                     appointments: data.appointments || [],
                     phoneNumber: data.phoneNumber || "",
-                    dob: data.dob || "", // Keeping dob in case it's still needed
-                    photoID: null, // Files can't be preloaded, handle this separately
-                    wantsDrink: data.wantsDrink || false, // Assuming this is still relevant
-                });
+                    dob: data.dob || "",
+                    photoId: data.photoId
+                      ? {
+                          data: data.photoId.data || "",
+                          contentType: data.photoId.contentType || "",
+                          fileName: data.photoId.fileName || "",
+                        }
+                      : null, // Ensure the object structure is correct
+                    wantsDrink: data.wantsDrink || false,
+                    verifiedId: data.verifiedId || false, // Ensure all required fields are included
+                    isAdmin: data.isAdmin || false,
+                    createdAt: data.createdAt || new Date().toISOString(),
+                    updatedAt: data.updatedAt || new Date().toISOString(),
+                  });
             } catch (error) {
                 console.error("Error fetching member data:", error);
             }
@@ -258,7 +268,7 @@ const CustomizeMembership = () => {
                                 <img
                                     src={cut.image}
                                     alt={cut.name}
-                                    className="w-full h-60 md:h-40 object-cover rounded-md"
+                                    className="w-full h-60 md:h-[35rem] object-cover rounded-md"
                                 />
                                 <h3 className="text-center md:text-lg font-semibold mt-2">{cut.name}</h3>
                                 <button
@@ -397,7 +407,12 @@ const CustomizeMembership = () => {
                                                     Upload
                                                 </label>
                                                 <input id="fileUpload" type="file" accept="image/*" capture="environment" onChange={handleFileUpload} className="hidden" disabled={!formData.wantsDrink} />
-                                                {formData.photoID && <p className="mt-2 text-sm text-gray-700">Selected: {formData.photoID.name}</p>}
+                                                <p className="mt-2 text-sm text-gray-700">
+                                                    Selected:{" "}
+                                                    {formData.photoID
+                                                    ? formData.photoID.name
+                                                    : member?.photoId?.fileName || "No Photo ID has been uploaded."}
+                                                </p>
                                             </div>
 
                                             {/* Choose Drink */}
@@ -795,7 +810,15 @@ const CustomizeMembership = () => {
                                 </div>
                                 <div className="flex items-center justify-between">
                                     <h2 className="font-semibold">Price</h2>
-                                    <p>$90/mo</p>
+                                    <p>
+                                        {member?.membership === "Gold"
+                                            ? "$90/mo"
+                                            : member?.membership === "Silver"
+                                            ? "$62.50/mo"
+                                            : member?.membership === "Bronze"
+                                            ? "$45/mo"
+                                            : "N/A"}
+                                    </p>
                                 </div>
                                 <h2 className="font-semibold ">Benefits</h2>
                                 <div className="flex flex-col space-y-2 my-2">    
