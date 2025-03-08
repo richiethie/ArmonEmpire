@@ -66,7 +66,7 @@ const Header = () => {
                 <Link to="/services" onClick={toggleDrawer} className="text-3xl text-white font-bold hover:text-orange-300 py-6 block">Services</Link>
                 <Link to="/schedule" onClick={toggleDrawer} className="text-3xl text-white font-bold hover:text-orange-300 py-6 block">Schedule</Link>
                 <Link to="/gallery" onClick={toggleDrawer} className="text-3xl text-white font-bold hover:text-orange-300 py-6 block">Gallery</Link>
-                <Link to="/location" onClick={toggleDrawer} className="text-3xl text-white font-bold hover:text-orange-300 py-6 block">Location</Link>
+                <Link to="/memberships" onClick={toggleDrawer} className="text-3xl text-white font-bold hover:text-orange-300 py-6 block">Membership</Link>
               </nav>
               <div className="text-center mt-6">
                 <button onClick={handleAuthAction} className="text-white text-xl font-semibold border border-white px-4 py-2 rounded-md cursor-pointer hover:text-orange-300 hover:border-orange-300">
@@ -95,9 +95,9 @@ const Header = () => {
           <Link to="/services" className="text-xl text-white font-bold hover:text-orange-300">Services</Link>
           <Link to="/schedule" className="text-xl text-white font-bold hover:text-orange-300">Schedule</Link>
           <Link to="/gallery" className="text-xl text-white font-bold hover:text-orange-300">Gallery</Link>
-          <Link to="/location" className="text-xl text-white font-bold hover:text-orange-300">Location</Link>
+          <Link to="/memberships" className="text-xl text-white font-bold hover:text-orange-300">Membership</Link>
         </nav>
-        <button onClick={handleAuthAction} className="text-white font-semibold border border-white px-4 py-2 rounded-md cursor-pointer hover:text-orange-300 hover:border-orange-300">
+        <button onClick={handleAuthAction} className="text-white font-semibold border border-white px-4 py-2 ml-32 rounded-md cursor-pointer hover:text-orange-300 hover:border-orange-300">
           {isAuthenticated ? "Member Center" : "Member Login"}
         </button>
       </div>

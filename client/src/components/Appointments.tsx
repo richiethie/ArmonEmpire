@@ -53,10 +53,14 @@ const Appointments = () => {
                 }}
                 tileDisabled={({ date, view }) => view === "month" && !hasAppointment(date)} // Disable tiles with no appointments
             />
-            <div className="mt-6 text-gray-400">
-                <h4 className="font-semibold text-lg">Appointments for {date.toLocaleDateString()}</h4>
+            <div className="mt-6 text-gray-400 text-center">
+                <h4 className="font-semibold text-lg border-b border-gray-400 mb-2">Booked appointments</h4>
                 <ul>
-                    {appointments
+                {appointments.filter((appointment) => {
+                    const appointmentDate = new Date(appointment.date);
+                    return appointmentDate.toISOString().split('T')[0] === date.toISOString().split('T')[0];
+                }).length > 0 ? (
+                    appointments
                         .filter((appointment) => {
                             const appointmentDate = new Date(appointment.date);
                             return appointmentDate.toISOString().split('T')[0] === date.toISOString().split('T')[0];
@@ -65,7 +69,10 @@ const Appointments = () => {
                             <li key={index} className="my-2">
                                 <p>{appointment.time} - {appointment.service}</p>
                             </li>
-                        ))}
+                        ))
+                ) : (
+                    <p className="text-sm">No appointments are booked.</p>
+                )}
                 </ul>
             </div>
         </div>

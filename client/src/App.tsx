@@ -10,6 +10,9 @@ import Members from "./pages/Members";
 import SelectMembership from "./pages/SelectMembership";
 import CustomizeMembership from "./pages/CustomizeMembership";
 import ScrollToTop from "./ScrollToTop";
+import Admin from "./pages/Admin";
+import MemberWaitlist from "./pages/MemberWaitlist";
+import Membership from "./pages/Membership";
 
 function App() {
 
@@ -24,6 +27,7 @@ function App() {
             <Route path="/schedule" element={<Schedule />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
+            <Route path="/memberships" element={<Membership />} />
 
             {/* Protected Routes */}
             <Route
@@ -47,6 +51,22 @@ function App() {
               element={
                 <ProtectedRoute>
                   <CustomizeMembership />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin"
+              element={
+                <ProtectedRoute>
+                  <Admin />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/member-waitlist"
+              element={
+                <ProtectedRoute>
+                  <MemberWaitlist />
                 </ProtectedRoute>
               }
             />

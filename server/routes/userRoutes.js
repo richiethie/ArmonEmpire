@@ -43,6 +43,28 @@ router.get("/", authenticateJWT, async (req, res) => {
   }
 });
 
+router.get("/members", async (req, res) => {
+  try {
+      const members = await User.find();
+      
+      // Convert photoId to a Base64 string for the frontend
+      const membersWithBase64Images = members.map(member => ({
+          ...member._doc,
+          photoId: member.photoId
+              ? {
+                  contentType: member.photoId.contentType,
+                  data: member.photoId.data.toString("base64"), // Convert buffer to Base64
+                  fileName: member.photoId.fileName
+              }
+              : null
+      }));
+
+      res.json(membersWithBase64Images);
+  } catch (error) {
+      res.status(500).json({ error: "Failed to fetch members" });
+  }
+});
+
 // Update user membership
 router.post("/update-membership", authenticateJWT, async (req, res) => {
     const { membership } = req.body;

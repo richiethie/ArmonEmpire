@@ -2,13 +2,37 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext"; // Import useAuth
 import ArmonPartialLogo from "../assets/img/ArmonPartialLogo.png";
 import { FaBars, FaFacebook, FaInstagram, FaSnapchatGhost, FaUserCircle } from "react-icons/fa";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { IoClose, IoLink } from "react-icons/io5";
+import axios from "axios";
+import { User } from "../types/User"
 
 const MemberHeader = () => {
   const navigate = useNavigate();
   const { user, isAuthenticated, logout } = useAuth(); // Get user authentication status
   const [isDrawerOpen, setDrawerOpen] = useState(false);
+  const [userData, setUserData] = useState<User | null>(null);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      const token = localStorage.getItem("token");
+      if (isAuthenticated) {
+        try {
+          const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/user`, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }); // Adjust endpoint as needed
+          setUserData(response.data);
+          console.log(response.data)
+        } catch (error) {
+          console.error("Error fetching user data:", error);
+        }
+      }
+    };
+
+    fetchUser();
+  }, [isAuthenticated]);
 
   const toggleDrawer = () => setDrawerOpen((prev) => !prev);
 
@@ -71,14 +95,26 @@ const MemberHeader = () => {
               {/* Drawer Navigation Links */}
               <nav className="flex flex-col items-center justify-center mt-12">
                 <Link to="/" onClick={toggleDrawer} className="text-3xl text-white font-bold hover:text-orange-300 py-6 block">Home</Link>
-                <Link to="/services" onClick={toggleDrawer} className="text-3xl text-white font-bold hover:text-orange-300 py-6 block">Services</Link>
-                <Link to="/schedule" onClick={toggleDrawer} className="text-3xl text-white font-bold hover:text-orange-300 py-6 block">Schedule</Link>
                 <Link to="/gallery" onClick={toggleDrawer} className="text-3xl text-white font-bold hover:text-orange-300 py-6 block">Gallery</Link>
                 <Link to="/location" onClick={toggleDrawer} className="text-3xl text-white font-bold hover:text-orange-300 py-6 block">Location</Link>
+                {/* Admin Center (Only if isAdmin) */}
+                {userData?.isAdmin && (
+                  <div className="text-center">
+                    <button 
+                      onClick={() => {
+                        navigate("/admin");
+                        toggleDrawer();
+                      }} 
+                      className="text-3xl text-white font-bold hover:text-orange-300 py-6 block cursor-pointer"
+                    >
+                      Admin Center
+                    </button>
+                  </div>
+                )}
               </nav>
 
               {/* Member Login / Member Center Button */}
-              <div className="text-center mt-6">
+              {/* <div className="text-center mt-6">
                 <button 
                   onClick={() => {
                     navigate(isAuthenticated ? "/members" : "/login");
@@ -88,14 +124,18 @@ const MemberHeader = () => {
                 >
                   {isAuthenticated ? "Member Center" : "Member Login"}
                 </button>
-              </div>
+              </div> */}
+
+
             </div>
 
             {/* Social Media Links at Bottom */}
             <div className="mt-auto pt-6 mb-6 flex flex-col">
-              <div className="flex justify-center mb-6">
+              {isAuthenticated && (
+                <div className="flex justify-center mb-6">
                   <button onClick={logout} className="text-white text-xl font-semibold border border-white px-4 py-2 rounded-md cursor-pointer hover:text-orange-300 hover:border-orange-300">Logout</button>
-              </div>
+                </div>
+              )}
               <div className="flex items-center justify-center space-x-4">
                 <a href="https://www.facebook.com/charlie.armon" target="_blank" rel="noopener noreferrer">
                   <FaFacebook size={30} className="hover:text-orange-300" />

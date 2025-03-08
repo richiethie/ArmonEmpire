@@ -14,6 +14,7 @@ import ArmonEmpireLogo from "../assets/img/ArmonEmpireLogo.png";
 import { Elements } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
 import CheckoutForm from "../components/CheckoutForm";
+import { barberCalendars } from "@/helpers";
 
 const stripePromise = loadStripe(`${import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY}`);
 
@@ -47,6 +48,10 @@ const CustomizeMembership = () => {
         preferredBarber: "",
         appointments: []
     });
+
+    const matchedBarberData = barberCalendars.find(
+        barber => barber.name === formData?.preferredBarber && barber.type === "member"
+    );
 
     const nextStep = () => setStep((prev) => prev + 1);
     const prevStep = () => setStep((prev) => prev - 1);
@@ -716,7 +721,7 @@ const CustomizeMembership = () => {
                         </div>
                         {/* Acuity Scheduling Embedded Calendar */}
                         <iframe 
-                            src="https://app.acuityscheduling.com/schedule.php?owner=26056634&calendarID=11548211&ref=embedded_csp" 
+                            src={`https://app.acuityscheduling.com/schedule.php?owner=26056634&calendarID=${matchedBarberData?.calendarId}&ref=embedded_csp`} 
                             title="Schedule Appointment" 
                             width="100%" 
                             height="1000" 
@@ -829,7 +834,7 @@ const CustomizeMembership = () => {
                                     </p>
                                 </div>
                                 <h2 className="font-semibold ">Benefits</h2>
-                                <div className="flex flex-col space-y-2 my-2">    
+                                <div className="flex flex-col space-y-2 my-2">
                                     <p>
                                         • Haircut every{" "}
                                         {member?.membership === "Gold"

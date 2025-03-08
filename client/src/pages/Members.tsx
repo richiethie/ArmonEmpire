@@ -7,6 +7,8 @@ import axios from "axios";
 import Appointments from "@/components/Appointments";
 import { useIsMobile } from "@/context/MobileContext";
 import Loader from "./Loader";
+import "../styles/Loader.css";
+import { barberCalendars } from "@/helpers";
 
 const Members = () => {
     const { user } = useAuth(); // Access current user from the AuthContext
@@ -20,9 +22,14 @@ const Members = () => {
     const [lastName, setLastName] = useState<string>(member?.lastName || "");
     const [email, setEmail] = useState<string>(member?.email || "");
     const [isLoading, setIsLoading] = useState<boolean>(false);
-
+    const [buttonLoading, setButtonLoading] = useState<boolean>(false);
+    const [checkedIn, setCheckedIn] = useState<boolean>(false);
 
     const isMobile = useIsMobile();
+
+    const matchedBarberData = barberCalendars.find(
+        barber => barber.name === member?.preferredBarber && barber.type === "member"
+    );
 
     const handleCancel = () => {
         if (member) {
@@ -46,6 +53,33 @@ const Members = () => {
             setSelectedPhotoName(file.name);  // Update the file name as well
         }
     };    
+
+    const handleCheckIn = async () => {
+        setButtonLoading(true);
+        if (!member) {
+            console.error("No member data available!");
+            return; // Early return if `member` is null
+        }
+    
+        try {
+            const { photoId, ...memberData } = member; // Exclude `photoId` from member data
+    
+            const response = await axios.post("http://localhost:5001/check-in", 
+                { member: memberData }, // Send filtered user info
+                {
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                }
+            );
+    
+            console.log("Checked in successfully!", response.data);
+            setCheckedIn(true);
+        } catch (error) {
+            console.error("Check-in failed:", error);
+        }
+        setButtonLoading(false);
+    };
 
     const handleSave = async () => {
         if (!member) return; // Exit early if member is null
@@ -166,6 +200,76 @@ const Members = () => {
                         )}
                         {/* Membership hub */}
                         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+                            {/* Right Column - Loyalty & Shop */}
+                            <div className="space-y-6">
+                                {/* Check-In System */}
+                                <div className="rounded-lg bg-gray-100 text-black p-10 bg-charcoal text-center">
+                                    <h3 className="text-xl font-semibold mb-4">Check-In</h3>
+                                    {checkedIn ? (
+                                        <button disabled className="w-full bg-gray-500 p-2 rounded text-white">Checked In</button>
+                                    ) : (
+                                        <button 
+                                            onClick={handleCheckIn} 
+                                            className="w-full bg-green-500 p-2 rounded text-white cursor-pointer hover:bg-green-700"
+                                        >
+                                            {buttonLoading ? (
+                                                <div className="loading-dots flex justify-center items-center space-x-2 my-2">
+                                                    <div className="dot"></div>
+                                                    <div className="dot"></div>
+                                                    <div className="dot"></div>
+                                                    <div className="dot"></div>
+                                                </div>
+                                            ) :  ("I'm Here")}
+                                        </button>
+                                    )}
+                                    <p className="mt-2 text-gray-400">Estimated wait time: ~10 min</p>
+                                </div>
+                                {/* Appointments */}
+                                <Appointments />
+                                
+                                {/* Loyalty Points */}
+                                <div className="rounded-lg bg-gray-100 text-black p-6 bg-charcoal text-center">
+                                    <h3 className="text-xl font-semibold mb-2">Specialty Services</h3>
+                                    <div className="flex justify-center text-gray-500">
+                                        <p>Cosmetology | SMYLEXO</p>
+                                    </div>
+                                    <button 
+                                        className="mt-6 cursor-pointer bg-orange-300 text-white px-4 py-2 rounded w-full" 
+                                        onClick={() => console.log("Hello")}
+                                    >
+                                        Book Now
+                                    </button>
+                                </div>
+
+                            </div>
+
+                            {/* Center Column - Book Appointment & Check-In */}
+                            <div className="space-y-6 md:col-span-2">
+                                {/* Book an Appointment */}
+                                <div className="rounded-lg bg-gray-100 text-black p-2 md:p-8 bg-charcoal">
+                                    {/* Book an Appointment Header */}
+                                    <h3 className={`text-xl text-center font-bold mb-4 ${isMobile && ("mt-2")}`}>
+                                        Book with <span className="text-orange-300">{member?.preferredBarber || "Your Preferred Barber"}</span>
+                                    </h3>
+
+                                    {/* Embed Acuity Scheduling iframe */}
+                                    <iframe
+                                        src={`https://app.acuityscheduling.com/schedule.php?owner=26056634&calendarID=${matchedBarberData?.calendarId}&ref=embedded_csp`}
+                                        title="Schedule Appointment"
+                                        width="100%"
+                                        height="800"
+                                        frameBorder="0"
+                                        className="rounded-lg shadow-secondary" // Optional for styling
+                                    ></iframe>
+                                    <script
+                                        src="https://embed.acuityscheduling.com/js/embed.js"
+                                        type="text/javascript"
+                                    ></script>
+                                </div>
+
+                                
+                            </div>
+
                             {/* Left Column - Membership Hub */}
                             <div className="rounded-lg bg-gray-100 text-black p-6">
                                 <h3 className="text-2xl text-center font-semibold mb-4">Your account</h3>
@@ -255,12 +359,12 @@ const Members = () => {
                                                     <div className="flex gap-2 mt-6">
                                                         <button
                                                             className={`px-4 py-2 rounded w-1/2 transition-all ${
-                                                                Boolean(drinkOfChoice) && !selectedPhoto
-                                                                    ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                                                                    : "bg-orange-300 text-white cursor-pointer hover:bg-orange-400"
+                                                                Boolean(drinkOfChoice)
+                                                                    ? "bg-orange-300 text-white cursor-pointer hover:bg-orange-400"
+                                                                    : "bg-gray-300 text-gray-500 cursor-not-allowed"
                                                             }`}
                                                             onClick={handleSave}
-                                                            disabled={Boolean(drinkOfChoice) && !selectedPhoto} 
+                                                            disabled={!selectedPhotoName} 
                                                         >
                                                             Save
                                                         </button>
@@ -285,60 +389,6 @@ const Members = () => {
                                         <p className="text-center text-sm text-gray-400">No member found.</p>
                                     )}
                                 </div>
-                            </div>
-
-                            {/* Center Column - Book Appointment & Check-In */}
-                            <div className="space-y-6 md:col-span-2">
-                                {/* Book an Appointment */}
-                                <div className="rounded-lg bg-gray-100 text-black p-2 md:p-8 bg-charcoal">
-                                    {/* Book an Appointment Header */}
-                                    <h3 className={`text-xl text-center font-bold mb-4 ${isMobile && ("mt-2")}`}>
-                                        Book with <span className="text-orange-300">{member?.preferredBarber || "Your Preferred Barber"}</span>
-                                    </h3>
-
-                                    {/* Embed Acuity Scheduling iframe */}
-                                    <iframe
-                                        src="https://app.acuityscheduling.com/schedule.php?owner=26056634&calendarID=6774376&ref=embedded_csp"
-                                        title="Schedule Appointment"
-                                        width="100%"
-                                        height="800"
-                                        frameBorder="0"
-                                        className="rounded-lg shadow-secondary" // Optional for styling
-                                    ></iframe>
-                                    <script
-                                        src="https://embed.acuityscheduling.com/js/embed.js"
-                                        type="text/javascript"
-                                    ></script>
-                                </div>
-
-                                
-                            </div>
-
-                            {/* Right Column - Loyalty & Shop */}
-                            <div className="space-y-6">
-                                {/* Check-In System */}
-                                <div className="rounded-lg bg-gray-100 text-black p-10 bg-charcoal text-center">
-                                    <h3 className="text-xl font-semibold mb-4">Check-In</h3>
-                                    <button className="w-full bg-green-500 p-2 rounded text-white">I'm Here</button>
-                                    <p className="mt-2 text-gray-400">Estimated wait time: ~10 min</p>
-                                </div>
-                                {/* Appointments */}
-                                <Appointments />
-                                
-                                {/* Loyalty Points */}
-                                <div className="rounded-lg bg-gray-100 text-black p-6 bg-charcoal text-center">
-                                    <h3 className="text-xl font-semibold mb-2">Specialty Services</h3>
-                                    <div className="flex justify-center text-gray-500">
-                                        <p>Cosmetology | SMYLEXO</p>
-                                    </div>
-                                    <button 
-                                        className="mt-6 cursor-pointer bg-orange-300 text-white px-4 py-2 rounded w-full" 
-                                        onClick={() => console.log("Hello")}
-                                    >
-                                        Book Now
-                                    </button>
-                                </div>
-
                             </div>
                         </div>
 
