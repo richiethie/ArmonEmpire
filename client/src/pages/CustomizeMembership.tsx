@@ -94,7 +94,7 @@ const CustomizeMembership = () => {
 
     const priceMap = {
         Gold: 90.00,
-        Silver: 62.50,
+        Silver: 60.00,
         Bronze: 45.00
     };
 
@@ -827,7 +827,7 @@ const CustomizeMembership = () => {
                                         {member?.membership === "Gold"
                                             ? "$90/mo"
                                             : member?.membership === "Silver"
-                                            ? "$62.50/mo"
+                                            ? "$60/mo"
                                             : member?.membership === "Bronze"
                                             ? "$45/mo"
                                             : "N/A"}

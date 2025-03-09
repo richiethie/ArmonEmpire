@@ -71,7 +71,7 @@ export default function CheckoutForm({ member }: CheckoutFormProps) {
     // Map membership to display price
     const priceMapping: { [key: string]: number } = {
         Gold: 90.00,
-        Silver: 62.50,
+        Silver: 60.00,
         Bronze: 45.00,
     };
     const displayAmount = member ? priceMapping[member.membership] || 0 : 0;

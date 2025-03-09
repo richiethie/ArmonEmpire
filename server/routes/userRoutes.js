@@ -45,23 +45,38 @@ router.get("/", authenticateJWT, async (req, res) => {
 
 router.get("/members", async (req, res) => {
   try {
-      const members = await User.find();
-      
-      // Convert photoId to a Base64 string for the frontend
-      const membersWithBase64Images = members.map(member => ({
-          ...member._doc,
-          photoId: member.photoId
-              ? {
-                  contentType: member.photoId.contentType,
-                  data: member.photoId.data.toString("base64"), // Convert buffer to Base64
-                  fileName: member.photoId.fileName
-              }
-              : null
-      }));
+    const members = await User.find();
 
-      res.json(membersWithBase64Images);
+    // Convert photoId to Base64 safely
+    const membersWithBase64Images = members.map((member) => {
+      let base64PhotoId = null;
+
+      if (member.photoId && member.photoId.data) {
+        try {
+          // Ensure it's a Buffer before converting
+          base64PhotoId = {
+            contentType: member.photoId.contentType,
+            data: Buffer.isBuffer(member.photoId.data)
+              ? member.photoId.data.toString("base64")
+              : null, // Return null if data is not a Buffer
+            fileName: member.photoId.fileName,
+          };
+        } catch (error) {
+          console.error("Error processing photoId for user:", member.email, error);
+          base64PhotoId = null; // Ensure it doesn't break the response
+        }
+      }
+
+      return {
+        ...member._doc,
+        photoId: base64PhotoId, // Return null if photoId was invalid
+      };
+    });
+
+    res.json(membersWithBase64Images);
   } catch (error) {
-      res.status(500).json({ error: "Failed to fetch members" });
+    console.error("Failed to fetch members:", error);
+    res.status(500).json({ error: "Failed to fetch members" });
   }
 });
 

@@ -44,9 +44,9 @@ const SelectMembership = () => {
         {/* Bronze Membership */}
         <div className="p-6 rounded-lg shadow-white border border-white text-center space-y-4">
           <h3 className="text-4xl font-semibold">Bronze Membership</h3>
-          <p className="text-lg">Haircuts every 4 weeks</p>
-          <p className="text-lg font-semibold text-orange-300">$45</p>
+          <p className="text-xl font-semibold text-orange-300">$45</p>
           <ul className="space-y-6 text-md">
+            <li className="text-gray-300">• Haircuts every 4 weeks</li>
             <li className="text-gray-300">• Complimentary drinks provided</li>
             <li className="text-gray-300">• Savings on specialty services</li>
             <li className="text-gray-300">• No overtime fees on late bookings</li>
@@ -64,35 +64,12 @@ const SelectMembership = () => {
           </p>
         </div>
 
-        {/* Gold Membership (larger) */}
-        <div className="p-8 rounded-lg shadow-white border border-white text-center space-y-4 transform scale-110">
-          <h3 className="text-4xl md:text-5xl font-semibold">Gold Membership</h3>
-          <p className="text-xl">Haircuts every 2 weeks</p>
-          <p className="text-xl font-semibold text-orange-300">$90</p>
-          <ul className="space-y-6 text-sm md:text-lg">
-            <li className="text-gray-300">• Complimentary drinks provided</li>
-            <li className="text-gray-300">• Savings on specialty services</li>
-            <li className="text-gray-300">• No overtime fees on late bookings</li>
-            <li className="text-gray-300">• No fees for last-minute bookings</li>
-          </ul>
-          <button
-            className="w-full cursor-pointer bg-orange-300 text-black font-semibold py-2 rounded-md hover:bg-orange-500 transition"
-            onClick={() => handleChooseMembership("Gold")}
-          >
-            Choose Gold
-          </button>
-          <p className="text-xs text-gray-500">
-            Membership services are billed as a monthly recurring charge. No
-            cancellation fees.
-          </p>
-        </div>
-
         {/* Silver Membership */}
         <div className="p-6 rounded-lg shadow-white border border-white text-center space-y-4">
           <h3 className="text-4xl font-semibold">Silver Membership</h3>
-          <p className="text-lg">Haircuts every 3 weeks</p>
-          <p className="text-lg font-semibold text-orange-300">$62.50</p>
+          <p className="text-xl font-semibold text-orange-300">$60</p>
           <ul className="space-y-6 text-md">
+            <li className="text-gray-300">• Haircuts every 3 weeks</li>
             <li className="text-gray-300">• Complimentary drinks provided</li>
             <li className="text-gray-300">• Savings on specialty services</li>
             <li className="text-gray-300">• No overtime fees on late bookings</li>
@@ -103,6 +80,29 @@ const SelectMembership = () => {
             onClick={() => handleChooseMembership("Silver")}
           >
             Choose Silver
+          </button>
+          <p className="text-xs text-gray-500">
+            Membership services are billed as a monthly recurring charge. No
+            cancellation fees.
+          </p>
+        </div>
+
+        {/* Gold Membership (larger) */}
+        <div className="p-8 rounded-lg shadow-white border border-white text-center space-y-4">
+          <h3 className="text-4xl font-semibold">Gold Membership</h3>
+          <p className="text-xl font-semibold text-orange-300">$90</p>
+          <ul className="space-y-6 text-md">
+            <li className="text-gray-300">• Haircuts every 2 weeks</li>
+            <li className="text-gray-300">• Complimentary drinks provided</li>
+            <li className="text-gray-300">• Savings on specialty services</li>
+            <li className="text-gray-300">• No overtime fees on late bookings</li>
+            <li className="text-gray-300">• No fees for last-minute bookings</li>
+          </ul>
+          <button
+            className="w-full cursor-pointer bg-orange-300 text-black font-semibold py-2 rounded-md hover:bg-orange-500 transition"
+            onClick={() => handleChooseMembership("Gold")}
+          >
+            Choose Gold
           </button>
           <p className="text-xs text-gray-500">
             Membership services are billed as a monthly recurring charge. No

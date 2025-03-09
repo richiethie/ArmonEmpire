@@ -47,7 +47,7 @@ const Membership = () => {
                 {/* Silver Membership */}
                 <div className="px-6 py-12 rounded-lg shadow-white border border-white text-center space-y-4">
                     <h3 className="text-3xl md:text-4xl font-semibold">Silver Membership</h3>
-                    <p className="text-2xl font-bold text-orange-300">$62.50</p>
+                    <p className="text-2xl font-bold text-orange-300">$60</p>
                     <ul className="space-y-6 my-8 text-md md:text-lg">
                         <li className="text-gray-300">• Haircuts every 3 weeks</li>
                         <li className="text-gray-300">• Complimentary drinks provided</li>
@@ -69,25 +69,25 @@ const Membership = () => {
 
                 {/* Gold Membership (larger) */}
                 <div className="px-6 py-12 rounded-lg shadow-white border border-white text-center space-y-4">
-                <h3 className="text-3xl md:text-4xl font-semibold">Gold Membership</h3>
-                <p className="text-2xl font-bold text-orange-300">$90</p>
-                <ul className="space-y-6 my-8 text-md md:text-lg">
-                    <li className="text-gray-300">• Haircuts every 2 weeks</li>
-                    <li className="text-gray-300">• Complimentary drinks provided</li>
-                    <li className="text-gray-300">• Savings on specialty services</li>
-                    <li className="text-gray-300">• No overtime fees on late bookings</li>
-                    <li className="text-gray-300">• No fees for last-minute bookings</li>
-                </ul>
-                <button
-                    className="w-full cursor-pointer mt-8 bg-orange-300 text-black font-semibold py-2 rounded-md hover:bg-orange-500 transition"
-                    onClick={handleChooseMembership}
-                >
-                    Choose Gold
-                </button>
-                <p className="text-xs text-gray-500">
-                    Membership services are billed as a monthly recurring charge. No
-                    cancellation fees.
-                </p>
+                    <h3 className="text-3xl md:text-4xl font-semibold">Gold Membership</h3>
+                    <p className="text-2xl font-bold text-orange-300">$90</p>
+                    <ul className="space-y-6 my-8 text-md md:text-lg">
+                        <li className="text-gray-300">• Haircuts every 2 weeks</li>
+                        <li className="text-gray-300">• Complimentary drinks provided</li>
+                        <li className="text-gray-300">• Savings on specialty services</li>
+                        <li className="text-gray-300">• No overtime fees on late bookings</li>
+                        <li className="text-gray-300">• No fees for last-minute bookings</li>
+                    </ul>
+                    <button
+                        className="w-full cursor-pointer mt-8 bg-orange-300 text-black font-semibold py-2 rounded-md hover:bg-orange-500 transition"
+                        onClick={handleChooseMembership}
+                    >
+                        Choose Gold
+                    </button>
+                    <p className="text-xs text-gray-500">
+                        Membership services are billed as a monthly recurring charge. No
+                        cancellation fees.
+                    </p>
                 </div>
 
             </div>
