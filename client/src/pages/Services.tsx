@@ -28,8 +28,8 @@ const Services = () => {
         <div className="service-card bg-charcoal p-6 rounded-lg shadow-[0_0_20px_rgba(255,255,255,0.5)]">
           <FaScissors size={40} className="text-orange-300 mb-4 mx-auto" />
           <div className="flex justify-between items-center">
-            <h3 className="text-xl font-semibold mb-2">Signature Haircut</h3>
-            <p className="text-orange-300 font-bold">$40</p>
+            <h3 className="text-xl font-semibold mb-2">Full Haircut & Facial Hair</h3>
+            <p className="text-orange-300 font-bold">$50</p>
           </div>
           <p className="my-4">Precision haircut tailored to your style with expert detail and focus on your preferences.</p>
         </div>
@@ -38,8 +38,8 @@ const Services = () => {
         <div className="service-card bg-charcoal p-6 rounded-lg shadow-[0_0_20px_rgba(255,255,255,0.5)]">
           <FaShower size={40} className="text-orange-300 mb-4 mx-auto" />
           <div className="flex justify-between items-center">
-            <h3 className="text-xl font-semibold mb-2">Beard Grooming</h3>
-            <p className="text-orange-300 font-bold">$25</p>
+            <h3 className="text-xl font-semibold mb-2">Scalp Treatment</h3>
+            <p className="text-orange-300 font-bold">$45</p>
           </div>
           <p className="my-4">Perfect your beard with precise grooming, shaping, and trimming for a clean look.</p>
         </div>
@@ -48,7 +48,7 @@ const Services = () => {
         <div className="service-card bg-charcoal p-6 rounded-lg shadow-[0_0_20px_rgba(255,255,255,0.5)]">
           <FaRegSmile size={40} className="text-orange-300 mb-4 mx-auto" />
           <div className="flex justify-between items-center">
-            <h3 className="text-xl font-semibold mb-2">Hot Towel Shave</h3>
+            <h3 className="text-xl font-semibold mb-2">Kid's Haircut (12 & Under)</h3>
             <p className="text-orange-300 font-bold">$30</p>
           </div>
           <p className="my-4">Relaxing hot towel shave with smooth, razor-sharp precision for a refined finish.</p>
@@ -58,8 +58,8 @@ const Services = () => {
         <div className="service-card bg-charcoal p-6 rounded-lg shadow-[0_0_20px_rgba(255,255,255,0.5)]">
           <GiRazor size={40} className="text-orange-300 mb-4 mx-auto" />
           <div className="flex justify-between items-center">
-            <h3 className="text-xl font-semibold mb-2">Eyebrow Grooming</h3>
-            <p className="text-orange-300 font-bold">$15</p>
+            <h3 className="text-xl font-semibold mb-2">Bald Head | Beard Trim & Lining</h3>
+            <p className="text-orange-300 font-bold">$35</p>
           </div>
           <p className="my-4">Keep your eyebrows sharp and clean with expert grooming to maintain a fresh look.</p>
         </div>
@@ -68,8 +68,8 @@ const Services = () => {
         <div className="service-card bg-charcoal p-6 rounded-lg shadow-[0_0_20px_rgba(255,255,255,0.5)]">
           <FaSpa size={40} className="text-orange-300 mb-4 mx-auto" />
           <div className="flex justify-between items-center">
-            <h3 className="text-xl font-semibold mb-2">Shampoo Treatment</h3>
-            <p className="text-orange-300 font-bold">$20</p>
+            <h3 className="text-xl font-semibold mb-2">Hair Lining & Taper Back</h3>
+            <p className="text-orange-300 font-bold">$30</p>
           </div>
           <p className="my-4">Rejuvenate your hair with a premium shampoo and conditioner treatment to keep it healthy.</p>
         </div>
@@ -78,8 +78,8 @@ const Services = () => {
         <div className="service-card bg-charcoal p-6 rounded-lg shadow-[0_0_20px_rgba(255,255,255,0.5)]">
           <FaSpa size={40} className="text-orange-300 mb-4 mx-auto" />
           <div className="flex justify-between items-center">
-            <h3 className="text-xl font-semibold mb-2">Scalp Treatment</h3>
-            <p className="text-orange-300 font-bold">$35</p>
+            <h3 className="text-xl font-semibold mb-2">Full Haircut, Beard & Enhancements</h3>
+            <p className="text-orange-300 font-bold">$55</p>
           </div>
           <p className="my-4">A soothing treatment designed to nourish your scalp and promote healthy hair growth.</p>
         </div>
@@ -88,8 +88,8 @@ const Services = () => {
         <div className="service-card bg-charcoal p-6 rounded-lg shadow-[0_0_20px_rgba(255,255,255,0.5)]">
           <FaRegSmile size={40} className="text-orange-300 mb-4 mx-auto" />
           <div className="flex justify-between items-center">
-            <h3 className="text-xl font-semibold mb-2">Facial Treatment</h3>
-            <p className="text-orange-300 font-bold">$45</p>
+            <h3 className="text-xl font-semibold mb-2">Haircut & Sponge</h3>
+            <p className="text-orange-300 font-bold">$50</p>
           </div>
           <p className="my-4">Deep cleansing facial treatment that refreshes and revitalizes your skin for a glowing look.</p>
         </div>
@@ -98,8 +98,8 @@ const Services = () => {
         <div className="service-card bg-charcoal p-6 rounded-lg shadow-[0_0_20px_rgba(255,255,255,0.5)]">
           <FaSpa size={40} className="text-orange-300 mb-4 mx-auto" />
           <div className="flex justify-between items-center">
-            <h3 className="text-xl font-semibold mb-2">Express Facial</h3>
-            <p className="text-orange-300 font-bold">$30</p>
+            <h3 className="text-xl font-semibold mb-2">Full Haircut | No Facial Hair</h3>
+            <p className="text-orange-300 font-bold">$45</p>
           </div>
           <p className="my-4">Quick, rejuvenating facial for when you're on the go. Get a fresh glow in less than 30 minutes!</p>
         </div>

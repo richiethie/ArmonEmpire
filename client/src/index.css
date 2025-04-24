@@ -6,6 +6,38 @@
 @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@100..900&display=swap');
 
 
+.react-calendar__tile--active {
+  background-color: #ffb86a !important;  /* pick your preferred color */
+  color: #fff !important;               /* ensure text is visible */
+  border-radius: 6px;                   /* optional styling */
+}
+
+/* Also override hover/focus states for the active date tile */
+.react-calendar__tile--active:enabled:hover,
+.react-calendar__tile--active:enabled:focus {
+  background-color: #ffb86a !important; /* slightly darker shade if desired */
+  color: #fff !important;
+}
+
+.appointment-tile {
+  background-color: #ffb86a !important;  /* Tailwind’s green-500 hex code */
+  color: #ffffff !important;
+  border-radius: 6px;
+}
+
+/* Optionally adjust hover/focus styles */
+.appointment-tile:enabled:hover,
+.appointment-tile:enabled:focus {
+  background-color: #fb9324 !important;  /* Darker green on hover/focus */
+  color: #fff !important;
+}
+
+.today-tile {
+  /* Example: a bright border and perhaps a subtle background */
+  border-radius: 6px; /* Fully round the border */
+  background-color: rgb(200, 200, 200) !important; /* Optional subtle bg */
+}
+
 body {
   font-family: 'Inter', sans-serif;
 }

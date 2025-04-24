@@ -7,7 +7,7 @@ const EmptyHeader = () => {
   const isMobile = useIsMobile();
 
   return (
-    <header className="fixed top-0 left-0 w-full z-10 p-4 bg-black shadow-lg">
+    <header className="fixed top-0 left-0 w-full z-10 p-4 bg-black shadow-lg border-b border-bg-[#1b1f23]">
       <div className="flex items-center mx-auto">
         {/* Logo (Left) */}
         <div 

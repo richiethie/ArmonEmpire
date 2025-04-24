@@ -10,12 +10,16 @@ const stripeRoutes = require("./routes/stripeRoutes");
 const app = express();
 
 // Middleware
-app.use(express.json());
+app.use(express.json({
+  verify: (req, res, buf) => {
+    req.rawBody = buf;
+  },
+}));
 app.use(express.urlencoded({ extended: true }));
 // Enable CORS for all origins or specify frontend URL
 const corsOptions = {
     origin: process.env.FRONTEND_URL || "http://localhost:5173", // Adjust this based on where your frontend is hosted
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true,
 };

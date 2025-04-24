@@ -161,4 +161,30 @@ router.post("/upload-photo-id", upload.single("photo"), async (req, res) => {
   }
 });
 
+router.patch("/verify-id", authenticateJWT, async (req, res) => {
+  const { userId, verified } = req.body;
+
+  // Check for a valid boolean value
+  if (typeof verified !== "boolean") {
+      return res.status(400).json({ message: "Invalid verified value. It must be true or false." });
+  }
+
+  try {
+      // Find the user by ID
+      const user = await User.findById(userId);
+      if (!user) {
+          return res.status(404).json({ message: "User not found." });
+      }
+
+      // Update the user's verification status
+      user.verifiedId = verified;
+      await user.save();
+
+      return res.status(200).json({ message: "User verification status updated", user });
+  } catch (error) {
+      console.error("Error updating user verification:", error);
+      return res.status(500).json({ message: "Server error" });
+  }
+});
+
 module.exports = router;

@@ -86,7 +86,7 @@ const Header = () => {
       <div className="flex justify-between items-center mx-auto">
         <div onClick={() => navigate("/")} className="flex text-6xl cursor-pointer">
           <div className="flex justify-center items-center w-16 bg-white rounded-full">
-            <img src={ArmonPartialLogo} alt="Armon Empire Logo" className="h-12 pb-1" />
+            <img src={ArmonPartialLogo} alt="Armon Empire Logo" className="h-14 pb-1" />
           </div>
           <h1 className="text-white ml-1">Armon Empire</h1>
         </div>

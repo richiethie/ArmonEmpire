@@ -7,7 +7,7 @@ const UserSchema = new mongoose.Schema(
     lastName: { type: String, required: true },
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
-    membership: { type: String, enum: ["Free", "Bronze", "Silver", "Gold"], default: "Free" },
+    membership: { type: String, enum: ["Free", "Bronze", "Silver", "Gold", "Cancelled"], default: "Free" },
     preferredBarber: { type: String, default: "" },
     drinkOfChoice: { type: String, default: "" },
     isOfLegalDrinkingAge: { type: Boolean, default: false },
@@ -24,6 +24,13 @@ const UserSchema = new mongoose.Schema(
     // Stripe Integration
     stripeCustomerId: { type: String, default: null }, // Stores Stripe customer ID
     subscriptionId: { type: String, default: null }, // Stores Stripe subscription ID
+    paymentStatus: {
+      type: String,
+      enum: ["active", "past_due", "cancelled", "pending", "incomplete"],
+      default: "active"
+    },
+    resetPasswordToken: { type: String, default: null },
+    resetPasswordExpires: { type: Date, default: null },
   },
   { timestamps: true }
 );

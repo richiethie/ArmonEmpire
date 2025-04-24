@@ -13,6 +13,12 @@ import ScrollToTop from "./ScrollToTop";
 import Admin from "./pages/Admin";
 import MemberWaitlist from "./pages/MemberWaitlist";
 import Membership from "./pages/Membership";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
+import ManageMembership from "./pages/ManageMembership";
+import ChangeMembership from "./pages/ChangeMembership";
+import UpdatePaymentMethod from "./pages/UpdatePaymentMethod";
+import Gallery from "./pages/Gallery";
 
 function App() {
 
@@ -28,6 +34,9 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/memberships" element={<Membership />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
+            <Route path="/gallery" element={<Gallery />} />
 
             {/* Protected Routes */}
             <Route
@@ -67,6 +76,30 @@ function App() {
               element={
                 <ProtectedRoute>
                   <MemberWaitlist />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/manage-membership"
+              element={
+                <ProtectedRoute>
+                  <ManageMembership />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/change-membership"
+              element={
+                <ProtectedRoute>
+                  <ChangeMembership />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/update-payment-method"
+              element={
+                <ProtectedRoute>
+                  <UpdatePaymentMethod />
                 </ProtectedRoute>
               }
             />

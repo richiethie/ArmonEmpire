@@ -37,7 +37,7 @@ const MemberHeader = () => {
   const toggleDrawer = () => setDrawerOpen((prev) => !prev);
 
   return (
-    <header className="fixed top-0 left-0 w-full z-10 p-4 bg-black shadow-lg">
+    <header className="fixed top-0 left-0 w-full z-10 p-4 bg-black border-b border-[#1b1f23]">
       <div className="flex justify-between items-center mx-auto">
         {/* Logo (Left) */}
         <div 
@@ -97,6 +97,32 @@ const MemberHeader = () => {
                 <Link to="/" onClick={toggleDrawer} className="text-3xl text-white font-bold hover:text-orange-300 py-6 block">Home</Link>
                 <Link to="/gallery" onClick={toggleDrawer} className="text-3xl text-white font-bold hover:text-orange-300 py-6 block">Gallery</Link>
                 <Link to="/location" onClick={toggleDrawer} className="text-3xl text-white font-bold hover:text-orange-300 py-6 block">Location</Link>
+                {isAuthenticated && (
+                  <div className="text-center">
+                    <button 
+                      onClick={() => {
+                        navigate("/members");
+                        toggleDrawer();
+                      }} 
+                      className="text-3xl text-white font-bold hover:text-orange-300 py-6 block cursor-pointer"
+                    >
+                      Member Center
+                    </button>
+                  </div>
+                )}
+                {isAuthenticated && (
+                  <div className="text-center">
+                    <button 
+                      onClick={() => {
+                        navigate("/manage-membership");
+                        toggleDrawer();
+                      }} 
+                      className="text-3xl text-white font-bold hover:text-orange-300 py-6 block cursor-pointer"
+                    >
+                      Manage Membership
+                    </button>
+                  </div>
+                )}
                 {/* Admin Center (Only if isAdmin) */}
                 {userData?.isAdmin && (
                   <div className="text-center">

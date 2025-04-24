@@ -13,15 +13,14 @@ let appointmentsClients = [];
 // Middleware to verify JWT token
 const verifyToken = (req, res, next) => {
     const token = req.header("Authorization")?.replace("Bearer ", "");
-
     if (!token) {
         return res.status(403).json({ message: "Access denied. No token provided." });
     }
-
     try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        req.userId = decoded.userId;  // Attach userId to request object
-        next();  // Proceed to the next middleware or route handler
+        console.log("Decoded token:", decoded); // Log the payload here
+        req.userId = decoded.id;  // or decoded.id if that's what you're using
+        next();
     } catch (error) {
         return res.status(400).json({ message: "Invalid token." });
     }
@@ -30,9 +29,11 @@ const verifyToken = (req, res, next) => {
 // GET route to fetch all appointments for the authenticated user
 router.get("/", verifyToken, async (req, res) => {
     try {
-        // Find appointments for the authenticated user
+        console.log("Fetching appointments for user ID:", req.userId);
+
+        // Find appointments for the authenticated user and sort by datetime
         const appointments = await Appointment.find({ userId: req.userId })
-            .sort({ date: 1 }); // Sort appointments by date ascending
+            .sort({ datetime: 1 });
 
         if (appointments.length === 0) {
             return res.status(404).json({ message: "No appointments found." });

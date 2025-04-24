@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
 import { useAuth } from "@/context/AuthContext";
+import { FaExternalLinkAlt } from "react-icons/fa";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -87,6 +88,16 @@ const Login = () => {
               />
             </div>
 
+            <div className="flex items-center justify-between">
+              <a
+                href="/forgot-password"
+                className="text-sm text-orange-300 hover:underline flex items-center justify-center"
+              >
+                Forgot password?
+              </a>
+              <FaExternalLinkAlt className="text-orange-300" />
+            </div>
+
             {/* Submit Button */}
             <button
               type="submit"
@@ -100,7 +111,7 @@ const Login = () => {
           {/* Signup Link */}
           <p className="text-center text-sm mt-4">
             Don't have an account?{" "}
-            <a href="/signup" className="text-cornflowerBlue hover:underline">
+            <a href="/signup" className="text-orange-300 hover:underline">
               Sign up
             </a>
           </p>

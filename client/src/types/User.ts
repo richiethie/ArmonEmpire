@@ -4,7 +4,7 @@ export interface User {
     lastName: string;
     email: string;
     password: string; // Should be handled securely (e.g., never exposed in frontend)
-    membership: "Free" | "Bronze" | "Silver" | "Gold"; // Enum for membership tiers
+    membership: "Free" | "Bronze" | "Silver" | "Gold" | "Cancelled"; // Enum for membership tiers
     preferredBarber: string;
     drinkOfChoice: string;
     isOfLegalDrinkingAge: boolean;
@@ -21,4 +21,7 @@ export interface User {
     updatedAt: string; // Timestamp of last update (if needed in frontend)
     dob: string; // Assuming date of birth is stored as a string (e.g., "YYYY-MM-DD")
     wantsDrink: boolean; // Matches the schema logic for drink preference
+    stripeCustomerId: string;
+    subscriptionId: string;
+    paymentStatus: "active" | "past_due" | "cancelled";
 }

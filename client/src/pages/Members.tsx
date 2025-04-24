@@ -9,6 +9,8 @@ import { useIsMobile } from "@/context/MobileContext";
 import Loader from "./Loader";
 import "../styles/Loader.css";
 import { barberCalendars } from "@/helpers";
+import { useNavigate } from "react-router-dom";
+import { FaExternalLinkSquareAlt } from "react-icons/fa";
 
 const Members = () => {
     const { user } = useAuth(); // Access current user from the AuthContext
@@ -26,10 +28,23 @@ const Members = () => {
     const [checkedIn, setCheckedIn] = useState<boolean>(false);
 
     const isMobile = useIsMobile();
+    const navigate = useNavigate();
 
     const matchedBarberData = barberCalendars.find(
         barber => barber.name === member?.preferredBarber && barber.type === "member"
     );
+
+    // Normalize phone number to international format (e.g., +1234567890)
+    const normalizePhoneNumber = (phone: string | undefined): string => {
+        if (!phone) return "";
+        // Remove non-digits except leading +
+        let normalized = phone.replace(/[^\d+]/g, "");
+        // Ensure it starts with +1 for US numbers
+        if (!normalized.startsWith("+")) {
+            normalized = `+1${normalized}`;
+        }
+        return normalized;
+    };
 
     const handleCancel = () => {
         if (member) {
@@ -179,12 +194,38 @@ const Members = () => {
         return () => clearTimeout(loaderTimeout);
     }, [isLoading]);
 
+    if (member?.membership === "Cancelled") {
+
+        return (
+            <>
+                {isLoading && <Loader />}
+                <MemberHeader />
+                <div className="bg-black text-white min-h-screen w-full py-8 flex flex-col items-center justify-center">
+                    <p className="font-bold text-lg">This membership has been cancelled.</p>
+                    <button 
+                        className="mt-6 cursor-pointer bg-orange-300 text-white px-4 py-2 rounded w-[60%]" 
+                        onClick={() => navigate("/select-membership")}
+                    >
+                        Restart Membership
+                    </button>
+                </div>
+                <Footer />
+            </>
+        );
+    }
+
     return (
         <>
             {isLoading && <Loader />}
             <MemberHeader />
-            <div className="bg-black text-crispWhite min-h-screen w-full py-8 mt-20">
+            <div className="bg-black text-white min-h-screen w-full py-8 mt-20">
                 <div className="flex flex-col w-full px-4 md:px-20">
+                    {member?.paymentStatus === "past_due" && (
+                        <div className="bg-red-800 text-white py-2 px-2 rounded-md mb-8 text-sm flex items-center">
+                            <div className="w-2 h-12 mr-4 rounded-md bg-red-500"></div>
+                            <p>Your payment is past due. Please update your payment information. <a href="/manage-membership" className="underline">Manage Membership</a></p>
+                        </div>
+                    )}
                     <h1 className="text-5xl md:text-7xl text-center mb-8">Member Center</h1>
 
                     <div className="w-full">
@@ -203,7 +244,7 @@ const Members = () => {
                             {/* Right Column - Loyalty & Shop */}
                             <div className="space-y-6">
                                 {/* Check-In System */}
-                                <div className="rounded-lg bg-gray-100 text-black p-10 bg-charcoal text-center">
+                                <div className="rounded-lg bg-[#1b1f23] text-white p-10 text-center">
                                     <h3 className="text-xl font-semibold mb-4">Check-In</h3>
                                     {checkedIn ? (
                                         <button disabled className="w-full bg-gray-500 p-2 rounded text-white">Checked In</button>
@@ -228,14 +269,14 @@ const Members = () => {
                                 <Appointments />
                                 
                                 {/* Loyalty Points */}
-                                <div className="rounded-lg bg-gray-100 text-black p-6 bg-charcoal text-center">
+                                <div className="rounded-lg bg-[#1b1f23] text-white p-6 bg-charcoal text-center">
                                     <h3 className="text-xl font-semibold mb-2">Specialty Services</h3>
                                     <div className="flex justify-center text-gray-500">
                                         <p>Cosmetology | SMYLEXO</p>
                                     </div>
                                     <button 
                                         className="mt-6 cursor-pointer bg-orange-300 text-white px-4 py-2 rounded w-full" 
-                                        onClick={() => console.log("Hello")}
+                                        onClick={() => navigate("/schedule")}
                                     >
                                         Book Now
                                     </button>
@@ -246,7 +287,7 @@ const Members = () => {
                             {/* Center Column - Book Appointment & Check-In */}
                             <div className="space-y-6 md:col-span-2">
                                 {/* Book an Appointment */}
-                                <div className="rounded-lg bg-gray-100 text-black p-2 md:p-8 bg-charcoal">
+                                <div className="rounded-lg bg-[#1b1f23] text-white p-2 md:p-8 bg-charcoal">
                                     {/* Book an Appointment Header */}
                                     <h3 className={`text-xl text-center font-bold mb-4 ${isMobile && ("mt-2")}`}>
                                         Book with <span className="text-orange-300">{member?.preferredBarber || "Your Preferred Barber"}</span>
@@ -254,24 +295,35 @@ const Members = () => {
 
                                     {/* Embed Acuity Scheduling iframe */}
                                     <iframe
-                                        src={`https://app.acuityscheduling.com/schedule.php?owner=26056634&calendarID=${matchedBarberData?.calendarId}&ref=embedded_csp`}
+                                        src={`https://app.acuityscheduling.com/schedule.php?owner=26056634&calendarID=${
+                                            matchedBarberData?.calendarId
+                                        }&ref=embedded_csp${
+                                            member?.email ? `&email=${encodeURIComponent(member.email)}` : ""
+                                        }${
+                                            member?.phoneNumber
+                                                ? `&phone=${encodeURIComponent(normalizePhoneNumber(member.phoneNumber))}`
+                                                : ""
+                                        }${member?.firstName ? `&firstName=${encodeURIComponent(member.firstName)}` : ""}${
+                                            member?.lastName ? `&lastName=${encodeURIComponent(member.lastName)}` : ""
+                                        }`}
                                         title="Schedule Appointment"
                                         width="100%"
                                         height="800"
                                         frameBorder="0"
-                                        className="rounded-lg shadow-secondary" // Optional for styling
+                                        className="rounded-lg shadow-secondary"
                                     ></iframe>
                                     <script
                                         src="https://embed.acuityscheduling.com/js/embed.js"
                                         type="text/javascript"
                                     ></script>
+                                    <p className="text-gray-400 text-sm text-center mt-4">
+                                        Note: The form is prefilled with your membership email and phone number ({member?.email}, {member?.phoneNumber}).
+                                    </p>
                                 </div>
-
-                                
                             </div>
 
                             {/* Left Column - Membership Hub */}
-                            <div className="rounded-lg bg-gray-100 text-black p-6">
+                            <div className="rounded-lg bg-[#1b1f23] text-white p-6">
                                 <h3 className="text-2xl text-center font-semibold mb-4">Your account</h3>
                                 <div className="space-y-4">
                                     {member ? (
@@ -300,7 +352,7 @@ const Members = () => {
                                                 </div>
 
                                                 {isEditing && (
-                                                    <button className="cursor-pointer bg-orange-300 text-white px-4 py-2 rounded w-full">Change Membership</button>
+                                                    <button onClick={() => navigate("/manage-membership")} className="cursor-pointer bg-orange-300 text-white px-4 py-2 rounded w-full">Change Membership</button>
                                                 )}
 
                                                 <label className="block mt-6 text-xl mb-2 font-semibold">Preferred Barber:</label>
@@ -340,7 +392,7 @@ const Members = () => {
 
                                                 <div className="flex items-center justify-between mt-6 mb-4">
                                                     <label className="block text-xl font-semibold">Photo ID:</label>
-                                                    {selectedPhotoName && (<p className={`px-2 py-1 text-sm text-gray-700 font-semibold rounded-lg border-3 border-red-500 bg-red-200`}>{member.verifiedId ? ("Verified Id") : ("Not verified")}</p>)}
+                                                    {selectedPhotoName && (<p className={`px-2 py-1 text-xs text-white rounded-lg border  ${member.verifiedId ? ("border-green-500 bg-green-800/50") : ("border-red-500 bg-red-800/50")}`}>{member.verifiedId ? ("Verified Id") : ("Not Verified")}</p>)}
                                                 </div>
                                                 <label
                                                     htmlFor="fileUpload"
@@ -353,7 +405,7 @@ const Members = () => {
                                                     {drinkOfChoice ? ("Upload") : ("Select a Drink")}
                                                 </label>
                                                 <input id="fileUpload" type="file" accept="image/*" capture="environment" onChange={handleFileUpload} className="hidden" disabled={!isEditing} />
-                                                {selectedPhotoName ? (<p className="mt-2 text-sm text-gray-700">Selected: {selectedPhotoName}</p>) : (<p className="mt-2 ml-1 text-sm text-gray-700">No Photo ID has been uploaded.</p>)}
+                                                {selectedPhotoName ? (<p className="mt-2 text-sm text-gray-500">Selected: {selectedPhotoName}</p>) : (<p className="mt-2 ml-1 text-sm text-gray-700">No Photo ID has been uploaded.</p>)}
 
                                                 {isEditing ? (
                                                     <div className="flex gap-2 mt-6">

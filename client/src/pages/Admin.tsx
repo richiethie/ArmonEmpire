@@ -30,6 +30,35 @@ const Admin = () => {
         fetchMembers();
     }, []);
 
+    // New function for handling verification
+    const handleVerification = async (isVerified: boolean) => {
+        if (!selectedMember) return;
+        
+        const token = localStorage.getItem("token");
+        try {
+            const response = await axios.patch(
+                `${import.meta.env.VITE_API_URL}/api/user/verify-id`,
+                { userId: selectedMember._id, verified: isVerified },
+                { headers: { Authorization: `Bearer ${token}` } }
+            );
+
+            // Optionally update the local members list to reflect the new verified status:
+            setMembers((prevMembers) =>
+                prevMembers.map((member) =>
+                    member._id === selectedMember._id
+                        ? { ...member, verifiedId: response.data.user.verifiedId }
+                        : member
+                )
+            );
+
+            // Close the modal once the update is successful.
+            setSelectedMember(null);
+        } catch (error) {
+            console.error("Error updating verification:", error);
+            // Optionally set error state or notify the user.
+        }
+    };
+
     return (
         <>
             {isMobile ? (
@@ -77,7 +106,7 @@ const Admin = () => {
                                                     <div>
                                                         {member.photoId ? (
                                                             <button
-                                                                className="px-2 py-1 bg-orange-300 rounded-lg text-white text-nowrap cursor-pointer hover:bg-orange-400"
+                                                                className="px-2 py-1 bg-orange-300 rounded-md text-white text-nowrap cursor-pointer hover:bg-orange-400"
                                                                 onClick={() => setSelectedMember(member)}
                                                             >
                                                                 Check ID
@@ -91,11 +120,11 @@ const Admin = () => {
                                                     <span className="text-gray-500">Verified ID •&nbsp;</span>
                                                     <div>
                                                         {member.verifiedId ? (
-                                                            <button className="bg-green-200 border border-green-500 text-nowrap px-2 py-1 rounded-lg">
+                                                            <button className="bg-green-900 border border-green-400 text-white text-xs text-nowrap px-2 py-1 rounded-md">
                                                                 Verified
                                                             </button>
                                                         ) : (
-                                                            <button className="px-2 py-1 bg-red-200 border border-red-500 text-nowrap rounded-lg">
+                                                            <button className="px-2 py-1 bg-red-900 border border-red-400 text-white text-xs text-nowrap rounded-md">
                                                                 Not Verified
                                                             </button>
                                                         )}
@@ -115,7 +144,6 @@ const Admin = () => {
 
                 </div>
             ) : (
-
                 <div className="min-h-screen text-black bg-gray-100">
                     <MemberHeader />
                     <div className="w-full mx-auto p-6 mt-20">
@@ -172,11 +200,11 @@ const Admin = () => {
                                                 </td>
                                                 <td className="p-4 text-center">
                                                     {member.verifiedId ? (
-                                                        <button className="bg-green-200 border border-green-500 text-nowrap px-2 py-1 rounded-lg">
+                                                        <button className="bg-green-900 border-2 border-green-400 text-white text-xs text-nowrap px-2 py-1 rounded-lg">
                                                             Verified
                                                         </button>
                                                     ) : (
-                                                        <button className="px-2 py-1 bg-red-200 border border-red-500 text-nowrap rounded-lg">
+                                                        <button className="px-2 py-1 bg-red-900 border-2 border-red-400 text-white text-xs text-nowrap rounded-lg">
                                                             Not Verified
                                                         </button>
                                                     )}
@@ -202,7 +230,9 @@ const Admin = () => {
                         >
                             ✕
                         </button>
-                        <h2 className="text-xl font-semibold text-center">{selectedMember.firstName} {selectedMember.lastName}</h2>
+                        <h2 className="text-xl text-black font-semibold text-center">
+                            {selectedMember.firstName} {selectedMember.lastName}
+                        </h2>
                         <div className="mt-4 flex justify-center">
                             <img
                                 src={`data:${selectedMember.photoId?.contentType};base64,${selectedMember.photoId?.data}`}
@@ -211,10 +241,16 @@ const Admin = () => {
                             />
                         </div>
                         <div className="mt-4 flex justify-between px-6">
-                            <button onClick={() => setSelectedMember(null)} className="px-3 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 cursor-pointer">
+                            <button
+                                onClick={() => handleVerification(true)}
+                                className="px-3 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 cursor-pointer"
+                            >
                                 Verify
                             </button>
-                            <button onClick={() => setSelectedMember(null)} className="px-3 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 cursor-pointer">
+                            <button
+                                onClick={() => handleVerification(false)}
+                                className="px-3 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 cursor-pointer"
+                            >
                                 Not Valid
                             </button>
                         </div>
