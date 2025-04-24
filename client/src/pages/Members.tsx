@@ -79,7 +79,7 @@ const Members = () => {
         try {
             const { photoId, ...memberData } = member; // Exclude `photoId` from member data
     
-            const response = await axios.post(`${import.meta.env.VITE_API_URL}/check-in`, 
+            const response = await axios.post(`${import.meta.env.VITE_CHECK_IN_URL}/check-in`, 
                 { member: memberData }, // Send filtered user info
                 {
                     headers: {
