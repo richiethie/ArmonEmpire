@@ -118,7 +118,7 @@ const CustomizeMembership = () => {
         formDataToSend.append("photoID", formData.photoID);
       }
 
-      const response = await axios.patch(
+      const response = await axios.put(
         `${import.meta.env.VITE_API_URL}/api/user/update`,
         formDataToSend,
         {
