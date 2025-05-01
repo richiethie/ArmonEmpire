@@ -26,6 +26,8 @@ const Appointments = () => {
         // 1. Compute start of today (midnight)
         const today = new Date();
         today.setHours(0, 0, 0, 0);
+
+        console.log("Fetched appointments:", response.data);
   
         // 2. Keep only appointments >= today
         const futureAppointments = response.data.filter((appointment: any) => {
