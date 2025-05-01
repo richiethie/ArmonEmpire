@@ -119,12 +119,11 @@ const CustomizeMembership = () => {
       }
 
       const response = await axios.patch(
-        `${import.meta.env.VITE_API_URL}/api/user`,
+        `${import.meta.env.VITE_API_URL}/api/user/update`,
         formDataToSend,
         {
           headers: {
             Authorization: `Bearer ${token}`,
-            "Content-Type": "multipart/form-data",
           },
         }
       );
