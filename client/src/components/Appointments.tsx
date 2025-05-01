@@ -31,7 +31,7 @@ const Appointments = () => {
   
         // 2. Keep only appointments >= today
         const futureAppointments = response.data.filter((appointment: any) => {
-          return new Date(appointment.datetime) >= today;
+          return new Date(appointment.datetime) >= today && appointment.status !== 'Canceled';
         });
   
         setAppointments(futureAppointments);
