@@ -28,7 +28,7 @@ interface FormData {
 const CustomizeMembership = () => {
   const [step, setStep] = useState<number>(1);
   const [member, setMember] = useState<User | null>(null);
-  const [completedAppointments, setCompletedAppointments] = useState<number>(4);
+  const [completedAppointments, setCompletedAppointments] = useState<number>(0);
   const isMobile = useIsMobile();
   const navigate = useNavigate();
 

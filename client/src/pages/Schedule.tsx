@@ -68,7 +68,7 @@ const Schedule = () => {
                 We're committed to delivering premium grooming services tailored to your style. Choose your preferred stylist below to schedule your appointment.
               </p>
               <p className="text-sm md:text-lg text-gray-200 font-bold mt-6">
-                <span className="inline-block border-l-4 border-gray-200 pl-3">Members:</span> Please <a className="bg-black border border-gray-700 px-3 py-[3px] font-bold text-white rounded-sm tracking-wider hover:text-white hover:bg-black transition duration-300" href="/login">Login</a> to access exclusive member appointments in the Member Center.
+                <span className="inline-block border-l-4 border-gray-200 pl-3">Members:</span> Please <a className="bg-black border border-gray-700 px-3 py-[3px] font-normal text-white rounded-sm tracking-wider hover:text-white hover:bg-black transition duration-300" href="/login">Login</a> to access exclusive member appointments in the Member Center.
               </p>
             </div>
           </div>

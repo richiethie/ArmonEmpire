@@ -161,11 +161,11 @@ const ManageMembership = () => {
                 {newTier} Membership •{" "}
                 <strong className="text-xl md:text-2xl font-bold text-orange-300">
                   {newTier === "Gold"
-                    ? "$90"
+                    ? "$100"
                     : newTier === "Silver"
-                    ? "$60"
+                    ? "$75"
                     : newTier === "Bronze"
-                    ? "$45"
+                    ? "$50"
                     : "N/A"}
                 </strong>
               </h3>
