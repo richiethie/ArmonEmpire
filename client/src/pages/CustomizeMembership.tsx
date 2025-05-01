@@ -99,6 +99,43 @@ const CustomizeMembership = () => {
     return normalized;
   };
 
+  const saveUserData = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        alert("Please log in to save your preferences.");
+        return;
+      }
+
+      const formDataToSend = new FormData();
+      formDataToSend.append("preferredBarber", formData.preferredBarber);
+      formDataToSend.append("drinkOfChoice", formData.drinkOfChoice);
+      formDataToSend.append("wantsDrink", formData.wantsDrink.toString());
+      if (formData.dob) {
+        formDataToSend.append("dob", formData.dob);
+      }
+      if (formData.photoID) {
+        formDataToSend.append("photoID", formData.photoID);
+      }
+
+      const response = await axios.patch(
+        `${import.meta.env.VITE_API_URL}/api/user`,
+        formDataToSend,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+      console.log("User data saved:", response.data);
+      setMember(response.data); // Update local member state
+    } catch (error) {
+      console.error("Error saving user data:", error);
+      alert("Failed to save your preferences. Please try again.");
+    }
+  };
+
   useEffect(() => {
     const script = document.createElement("script");
     script.src = "https://js.stripe.com/v3/";
@@ -183,10 +220,14 @@ const CustomizeMembership = () => {
         };
       });
       setCompletedAppointments((prevCompleted) => {
+        let newCompleted = prevCompleted;
         if (data.appointment.status === "Scheduled") {
           return prevCompleted + 1;
         } else if (data.appointment.status === "Canceled") {
           return prevCompleted - 1;
+        }
+        if (newCompleted >= requiredAppointments && step === 3) {
+          saveUserData();
         }
         return prevCompleted;
       });
@@ -715,7 +756,7 @@ const CustomizeMembership = () => {
                   <p>
                     <strong>Appointments Booked:</strong>{" "}
                     {formData.appointments.length > 0
-                      ? formData.appointments.map((appt) => appt.datetime).join(", ")
+                      ? formData.appointments.length
                       : "Not booked"}
                   </p>
                 </div>
