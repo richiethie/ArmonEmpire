@@ -28,7 +28,7 @@ interface FormData {
 const CustomizeMembership = () => {
   const [step, setStep] = useState<number>(1);
   const [member, setMember] = useState<User | null>(null);
-  const [completedAppointments, setCompletedAppointments] = useState<number>(0);
+  const [completedAppointments, setCompletedAppointments] = useState<number>(4);
   const isMobile = useIsMobile();
   const navigate = useNavigate();
 
@@ -106,29 +106,36 @@ const CustomizeMembership = () => {
         alert("Please log in to save your preferences.");
         return;
       }
-
+  
+      // 1) Build FormData with the exact keys your route expects
       const formDataToSend = new FormData();
       formDataToSend.append("preferredBarber", formData.preferredBarber);
       formDataToSend.append("drinkOfChoice", formData.drinkOfChoice);
-      formDataToSend.append("wantsDrink", formData.wantsDrink.toString());
-      if (formData.dob) {
-        formDataToSend.append("dob", formData.dob);
-      }
+  
+      // If you actually want to update name/email too:
+      formDataToSend.append("firstName", member?.firstName || "");
+      formDataToSend.append("lastName", member?.lastName || "");
+      formDataToSend.append("email", member?.email || "");
+  
+      // 2) Multer is configured as single('photoID'), so:
       if (formData.photoID) {
-        formDataToSend.append("photoID", formData.photoID);
+        formDataToSend.append("photoID", formData.photoID);           // the file itself
+        formDataToSend.append("photoIDName", formData.photoID.name);  // the filename string
       }
-
+  
+      // 3) Don’t manually set Content-Type—let the browser include the multipart boundary
       const response = await axios.put(
         `${import.meta.env.VITE_API_URL}/api/user/update`,
         formDataToSend,
         {
           headers: {
-            Authorization: `Bearer ${token}`,
+            Authorization: `Bearer ${token}`
           },
         }
       );
+  
       console.log("User data saved:", response.data);
-      setMember(response.data); // Update local member state
+      setMember(response.data.user); // your route returns { message, user }
     } catch (error) {
       console.error("Error saving user data:", error);
       alert("Failed to save your preferences. Please try again.");
@@ -192,6 +199,22 @@ const CustomizeMembership = () => {
   }, []);
 
   useEffect(() => {
+    // only fire when we land on step 4
+    if (step !== 4) return;
+  
+    const autoSave = async () => {
+      try {
+        await saveUserData();
+        console.log("Auto‐saved user data on step 4");
+      } catch (err) {
+        console.error("Auto‐save failed on step 4:", err);
+      }
+    };
+  
+    autoSave();
+  }, [step]);
+
+  useEffect(() => {
     const eventSource = new EventSource(`${import.meta.env.VITE_API_URL}/api/appointments/updates`);
     eventSource.onmessage = (event) => {
       const data = JSON.parse(event.data);
@@ -219,14 +242,10 @@ const CustomizeMembership = () => {
         };
       });
       setCompletedAppointments((prevCompleted) => {
-        let newCompleted = prevCompleted;
         if (data.appointment.status === "Scheduled") {
           return prevCompleted + 1;
         } else if (data.appointment.status === "Canceled") {
           return prevCompleted - 1;
-        }
-        if (newCompleted >= requiredAppointments && step === 3) {
-          saveUserData();
         }
         return prevCompleted;
       });
