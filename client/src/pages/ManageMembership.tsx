@@ -7,7 +7,7 @@ import { Elements, CardElement, useStripe, useElements } from "@stripe/react-str
 import { User } from "@/types/User";
 import { useAuth } from "@/context/AuthContext";
 import { useNavigate } from "react-router-dom";
-import { IoClose } from "react-icons/io5";
+import { IoChevronBackOutline, IoClose } from "react-icons/io5";
 import { FaCcAmex, FaCcVisa, FaCcMastercard, FaCcDiscover } from "react-icons/fa6";
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY!);
@@ -146,8 +146,12 @@ const ManageMembership = () => {
       <MemberHeader />
       <div className="h-screen flex flex-col items-center p-6">
         <div className="w-full max-w-3xl">
+          <div className="mb-4 flex items-center cursor-pointer text-white hover:text-orange-300 mt-18 md:mt-24" onClick={() => navigate("/members")}>
+              <IoChevronBackOutline className="mr-1 text-lg" />
+              <p>Member Center</p>
+          </div>
           {/* --- Netflix-like header area --- */}
-          <h2 className="text-4xl font-bold mt-24 mb-4">Membership</h2>
+          <h2 className="text-4xl font-bold mb-4">Membership</h2>
           <p className="font-semibold text-xl mb-4">Plan Details</p>
 
           {/* --- Membership Details Card --- */}

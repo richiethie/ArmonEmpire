@@ -17,7 +17,6 @@ import { barberCalendars } from "@/helpers";
 const stripePromise = loadStripe(`${import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY}`);
 
 interface FormData {
-  haircut: string;
   wantsDrink: boolean;
   dob: string;
   photoID: File | null;
@@ -34,7 +33,6 @@ const CustomizeMembership = () => {
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState<FormData>({
-    haircut: "",
     wantsDrink: false,
     dob: "",
     photoID: null,
@@ -44,7 +42,7 @@ const CustomizeMembership = () => {
   });
 
   const matchedBarberData = barberCalendars.find(
-    (barber) => barber.name === formData?.preferredBarber && barber.type === "member"
+    (barber) => barber.name === formData?.preferredBarber && barber.type === "guest"
   );
 
   const nextStep = () => setStep((prev) => prev + 1);
@@ -65,28 +63,27 @@ const CustomizeMembership = () => {
     }
   };
 
-  
   const getAge = (dob: string): number => {
-      if (!dob) return 0;
-      const birthDate = new Date(dob);
-      const today = new Date();
-      let age = today.getFullYear() - birthDate.getFullYear();
-      const monthDiff = today.getMonth() - birthDate.getMonth();
-      const dayDiff = today.getDate() - birthDate.getDate();
-      if (monthDiff < 0 || (monthDiff === 0 && dayDiff < 0)) {
-          age--;
-        }
-        return age;
-    };
-    
-    const isNextDisabled = formData.wantsDrink
-      ? !formData.dob || (getAge(formData.dob) < 21 && !formData.photoID) || !formData.drinkOfChoice
-      : false;
-      
+    if (!dob) return 0;
+    const birthDate = new Date(dob);
+    const today = new Date();
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+    const dayDiff = today.getDate() - birthDate.getDate();
+    if (monthDiff < 0 || (monthDiff === 0 && dayDiff < 0)) {
+      age--;
+    }
+    return age;
+  };
+
+  const isNextDisabled = formData.wantsDrink
+    ? !formData.dob || (getAge(formData.dob) < 21 && !formData.photoID) || !formData.drinkOfChoice
+    : false;
+
   const priceMap = {
-    Gold: 90.0,
-    Silver: 60.0,
-    Bronze: 45.0,
+    Gold: 100.0,
+    Silver: 75.0,
+    Bronze: 50.0,
   };
 
   const displayAmount = priceMap[member?.membership as keyof typeof priceMap] || 0;
@@ -95,9 +92,7 @@ const CustomizeMembership = () => {
 
   const normalizePhoneNumber = (phone: string | undefined): string => {
     if (!phone) return "";
-    // Remove non-digits except leading +
     let normalized = phone.replace(/[^\d+]/g, "");
-    // Ensure it starts with +1 for US numbers
     if (!normalized.startsWith("+")) {
       normalized = `+1${normalized}`;
     }
@@ -192,9 +187,8 @@ const CustomizeMembership = () => {
           return prevCompleted + 1;
         } else if (data.appointment.status === "Canceled") {
           return prevCompleted - 1;
-        } else {
-          return prevCompleted;
         }
+        return prevCompleted;
       });
     };
     return () => {
@@ -207,7 +201,7 @@ const CustomizeMembership = () => {
       <EmptyHeader />
       <main className="min-h-screen bg-black text-white pt-20 md:pt-28 pb-20">
         {/* Step 1: Haircut Selection */}
-        {step === 1 && (
+        {/* {step === 1 && (
           <section className="px-4 py-8 max-w-7xl mx-auto">
             <h1 className="text-4xl md:text-5xl text-center mb-4">Choose Your Haircut</h1>
             <p className="text-base md:text-lg text-center mb-6 text-gray-300">
@@ -264,135 +258,147 @@ const CustomizeMembership = () => {
               </article>
             </div>
           </section>
-        )}
+        )} */}
 
-        {/* Step 2: Complimentary Drink */}
-        {step === 2 && (
+        {/* Step 1: Complimentary Drink */}
+        {step === 1 && (
           <section className="px-4 py-8 max-w-7xl mx-auto">
             <h1 className="text-4xl md:text-5xl text-center mb-4">Complimentary Drink</h1>
             {isMobile ? (
-                <div className="flex flex-col items-center w-full max-w-xl mx-auto mb-[5rem]">
-                {/* Video Section */}
+              <div className="flex flex-col items-center w-full max-w-xl mx-auto mb-[5rem]">
                 <div className="w-full h-[35rem]">
-                    <video 
-                        src={whiskey} 
-                        autoPlay 
-                        muted 
-                        loop 
-                        playsInline 
-                        controls={false}
-                        className="relative w-full h-full object-cover rounded-lg" 
-                    />
+                  <video
+                    src={whiskey}
+                    autoPlay
+                    muted
+                    loop
+                    playsInline
+                    controls={false}
+                    className="relative w-full h-full object-cover rounded-lg"
+                  />
                 </div>
-                {/* Form Section with Transparent Background */}
-                <div className="absolute bg-gray-600/20 p-6 h-[30rem] mt-6 w-[70%] rounded-lg z-10">
-                    <label className="text-md font-semibold">Would you like a complimentary drink?</label>
-                    <div className="flex items-center space-x-4 mt-2">
-                        <label className="flex items-center space-x-2">
-                            <Checkbox
-                                className="cursor-pointer"
-                                colorPalette="blue"
-                                name="wantsDrink"
-                                checked={formData.wantsDrink === true}
-                                onCheckedChange={handleCheckboxChange}
-                                size="lg"
-                            >
-                                Yes
-                            </Checkbox>
-                        </label>
-                        <label className="flex items-center space-x-2">
-                            <Checkbox
-                                className="cursor-pointer"
-                                colorPalette="blue"
-                                name="wantsDrink"
-                                checked={formData.wantsDrink === false}
-                                onCheckedChange={handleCheckboxChange}
-                                size="lg"
-                            >
-                                No
-                            </Checkbox>
-                        </label>
+                <div className="absolute bg-[#1b1f23]/70 p-6 h-[30rem] mt-6 w-[70%] rounded-lg z-10">
+                  <label className="text-md font-semibold">Would you like a complimentary drink?</label>
+                  <div className="flex items-center space-x-4 mt-2">
+                    <label className="flex items-center space-x-2">
+                      <Checkbox
+                        className="cursor-pointer"
+                        colorPalette="blue"
+                        name="wantsDrink"
+                        checked={formData.wantsDrink === true}
+                        onCheckedChange={handleCheckboxChange}
+                        size="lg"
+                      >
+                        Yes
+                      </Checkbox>
+                    </label>
+                    <label className="flex items-center space-x-2">
+                      <Checkbox
+                        className="cursor-pointer"
+                        colorPalette="blue"
+                        name="wantsDrink"
+                        checked={formData.wantsDrink === false}
+                        onCheckedChange={handleCheckboxChange}
+                        size="lg"
+                      >
+                        No
+                      </Checkbox>
+                    </label>
+                  </div>
+                  <div className="mt-4 space-y-4">
+                    <div>
+                      <label
+                        className={`block text-md mb-2 font-semibold ${
+                          !formData.wantsDrink ? "text-gray-400" : ""
+                        }`}
+                      >
+                        Select your Date of Birth:
+                      </label>
+                      <input
+                        type="date"
+                        name="dob"
+                        value={formData.dob}
+                        onChange={handleChange}
+                        className={`border p-3 w-full rounded-md ${
+                          !formData.wantsDrink ? "text-gray-400 border-gray-400" : ""
+                        }`}
+                        disabled={!formData.wantsDrink}
+                      />
                     </div>
-
-                    {/* Date of Birth */}
-                    <div className="mt-4 space-y-4">
+                    {getAge(formData.dob) >= 21 && (
+                      <div className="space-y-4">
                         <div>
-                            <label className={`block text-md mb-2 font-semibold ${!formData.wantsDrink ? "text-gray-400" : ""}`}>
-                                Select your Date of Birth:
-                            </label>
-                            <input
-                                type="date"
-                                name="dob"
-                                value={formData.dob}
-                                onChange={handleChange}
-                                className={`border p-3 w-full rounded-md ${!formData.wantsDrink ? "text-gray-400 border-gray-400" : ""}`}
-                                disabled={!formData.wantsDrink}
-                            />
+                          <label
+                            className={`block text-md mb-2 font-semibold ${
+                              !formData.wantsDrink ? "text-gray-400" : ""
+                            }`}
+                          >
+                            Upload Photo ID:
+                          </label>
+                          <label
+                            htmlFor="fileUpload"
+                            className={`p-3 w-full rounded-md flex items-center justify-center cursor-pointer transition-all ${
+                              !formData.wantsDrink
+                                ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                                : "bg-white text-black hover:bg-gray-300"
+                            }`}
+                          >
+                            Upload
+                          </label>
+                          <input
+                            id="fileUpload"
+                            type="file"
+                            accept="image/*"
+                            capture="environment"
+                            onChange={handleFileUpload}
+                            className="hidden"
+                            disabled={!formData.wantsDrink}
+                          />
+                          <p className="mt-2 text-sm text-gray-700">
+                            Selected:{" "}
+                            {formData.photoID
+                              ? formData.photoID.name
+                              : member?.photoId?.fileName || "No Photo ID has been uploaded."}
+                          </p>
                         </div>
-
-                        {/* If age >= 21, show additional options */}
-                        {getAge(formData.dob) >= 21 && (
-                            <div className="space-y-4">
-                                {/* Upload ID */}
-                                <div>
-                                    <label className={`block text-md mb-2 font-semibold ${!formData.wantsDrink ? "text-gray-400" : ""}`}>
-                                        Upload Photo ID:
-                                    </label>
-                                    <label
-                                        htmlFor="fileUpload"
-                                        className={`p-3 w-full rounded-md flex items-center justify-center cursor-pointer transition-all ${
-                                            !formData.wantsDrink
-                                                ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                                                : "bg-orange-300 text-white hover:bg-orange-300"
-                                        }`}
-                                    >
-                                        Upload
-                                    </label>
-                                    <input id="fileUpload" type="file" accept="image/*" capture="environment" onChange={handleFileUpload} className="hidden" disabled={!formData.wantsDrink} />
-                                    <p className="mt-2 text-sm text-gray-700">
-                                        Selected:{" "}
-                                        {formData.photoID
-                                        ? formData.photoID.name
-                                        : member?.photoId?.fileName || "No Photo ID has been uploaded."}
-                                    </p>
-                                </div>
-
-                                {/* Choose Drink */}
-                                <div>
-                                    <label className={`block text-md mb-2 font-semibold ${!formData.wantsDrink ? "text-gray-400" : ""}`}>
-                                        Choose your drink:
-                                    </label>
-                                    <select
-                                        name="drinkOfChoice"
-                                        value={formData.drinkOfChoice}
-                                        onChange={handleChange}
-                                        className={`border p-3 w-full rounded-md ${!formData.wantsDrink ? "text-gray-400 border-gray-400" : ""}`}
-                                        disabled={!formData.wantsDrink}
-                                    >
-                                        <option className="text-black" value="">Select a drink</option>
-                                        <option className="text-black" value="Water">Water</option>
-                                        <option className="text-black" value="Whiskey">Whiskey</option>
-                                        <option className="text-black" value="Vodka">Vodka</option>
-                                        <option className="text-black" value="Rum">Rum</option>
-                                        <option className="text-black" value="Gin">Gin</option>
-                                        <option className="text-black" value="Tequila">Tequila</option>
-                                        <option className="text-black" value="Scotch">Scotch</option>
-                                        <option className="text-black" value="Bourbon">Bourbon</option>
-                                        <option className="text-black" value="Brandy">Brandy</option>
-                                        <option className="text-black" value="Cognac">Cognac</option>
-                                        <option className="text-black" value="Red Wine">Red Wine</option>
-                                        <option className="text-black" value="White Wine">White Wine</option>
-                                        <option className="text-black" value="Champagne">Champagne</option>
-                                    </select>
-                                </div>
-                            </div>
-                        )}
-                    </div>
+                        <div>
+                          <label
+                            className={`block text-md mb-2 font-semibold ${
+                              !formData.wantsDrink ? "text-gray-400" : ""
+                            }`}
+                          >
+                            Choose your drink:
+                          </label>
+                          <select
+                            name="drinkOfChoice"
+                            value={formData.drinkOfChoice}
+                            onChange={handleChange}
+                            className={`border p-3 w-full rounded-md ${
+                              !formData.wantsDrink ? "text-gray-400 border-gray-400" : ""
+                            }`}
+                            disabled={!formData.wantsDrink}
+                          >
+                            <option className="text-black" value="">
+                              Select a drink
+                            </option>
+                            <option className="text-black" value="Wine">
+                              Wine
+                            </option>
+                            <option className="text-black" value="Beer">
+                              Beer
+                            </option>
+                            <option className="text-black" value="House's Choice">
+                              House's Choice
+                            </option>
+                          </select>
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 </div>
-
-                </div>
+              </div>
             ) : (
-              <div className="flex flex-row bg-gray-800 rounded-lg max-w-6xl mx-auto shadow-2xl">
+              <div className="flex flex-row bg-[#1b1f23] rounded-lg max-w-6xl mx-auto shadow-2xl">
                 <div className="p-6 md:p-8 w-1/2">
                   <label className="text-lg font-semibold">Would you like a complimentary drink?</label>
                   <div className="flex items-center space-x-6 mt-2">
@@ -496,22 +502,9 @@ const CustomizeMembership = () => {
                           >
                             <option value="">Select a drink</option>
                             {[
-                              "Water",
-                              "Coca-Cola",
-                              "Pepsi",
-                              "Sprite",
-                              "Whiskey",
-                              "Vodka",
-                              "Rum",
-                              "Gin",
-                              "Tequila",
-                              "Scotch",
-                              "Bourbon",
-                              "Brandy",
-                              "Cognac",
-                              "Red Wine",
-                              "White Wine",
-                              "Champagne",
+                              "Wine",
+                              "Beer",
+                              "House's Choice"
                             ].map((drink) => (
                               <option key={drink} value={drink}>
                                 {drink}
@@ -537,22 +530,32 @@ const CustomizeMembership = () => {
           </section>
         )}
 
-        {/* Step 3: Choose Barber */}
-        {step === 3 && (
+        {/* Step 2: Choose Barber */}
+        {step === 2 && (
           <section className="px-4 py-8 max-w-7xl mx-auto">
             <h1 className="text-4xl md:text-5xl text-center mb-4">Choose Your Barber</h1>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-10">
               {barbers.map((barber) => (
                 <article
                   key={barber.id}
-                  onClick={() => setFormData({ ...formData, preferredBarber: barber.name })}
-                  className={`relative border-2 rounded-lg overflow-hidden cursor-pointer transition-all duration-300 hover:shadow-lg ${
-                    formData.preferredBarber === barber.name
-                      ? "border-orange-300 shadow-orange-300/50"
-                      : "border-gray-600"
-                  }`}
+                  onClick={() =>
+                    setFormData({ ...formData, preferredBarber: barber.name })
+                  }
+                  className={`
+                    bg-[#1b1f23]
+                    border border-[#1b1f23]
+                    rounded-xl
+                    overflow-hidden
+                    hover:border-orange-300
+                    transition-all duration-300
+                    transform hover:scale-[1.02] hover:shadow-lg
+                    cursor-pointer
+                    group
+                    relative
+                  `}
                 >
-                  <div className="absolute top-2 right-2">
+                  {/* Checkbox overlay */}
+                  <div className="absolute top-2 right-2 z-10">
                     <Checkbox
                       checked={formData.preferredBarber === barber.name}
                       onCheckedChange={() =>
@@ -562,28 +565,48 @@ const CustomizeMembership = () => {
                       aria-label={`Select ${barber.name} as preferred barber`}
                     />
                   </div>
-                  <img
-                    src={barber.image}
-                    alt={barber.name}
-                    className="w-full h-48 md:h-64 object-cover rounded-t-lg"
-                  />
-                  <div className="p-4 text-center">
-                    <h3 className="text-lg md:text-xl font-bold">{barber.name}</h3>
+
+                  {/* Image area with gradient overlay */}
+                  <div className="h-48 bg-[#1b1f23] relative overflow-hidden flex items-center justify-center">
+                    <img
+                      src={barber.image}
+                      alt={barber.name}
+                      className="w-40 h-40 rounded-full object-cover shadow-lg"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black to-transparent opacity-60" />
                   </div>
+
+                  {/* Name */}
+                  <div className="p-6">
+                      <h3 className="text-xl font-bold text-white mb-2 group-hover:text-orange-300 transition duration-300">{barber.name}</h3>
+                      <p className="text-gray-400 text-sm mb-4">{barber.title || "Expert Stylist"}</p>
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-300 text-sm">{"Choose"}</span>
+                        <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-black text-white group-hover:bg-orange-300 group-hover:text-black transition duration-300">
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+                          </svg>
+                        </span>
+                      </div>
+                    </div>
                 </article>
               ))}
             </div>
           </section>
         )}
 
-        {/* Step 4: Book Appointments */}
-        {step === 4 && (
+        {/* Step 3: Book Appointments */}
+        {step === 3 && (
           <section className="px-4 py-8 max-w-7xl mx-auto">
-            <h1 className="text-3xl md:text-5xl font-bold text-center mb-4">Book Appointments</h1>
+            <h1 className="text-3xl md:text-5xl text-center mb-4">Book Appointments</h1>
             <p className="text-base md:text-lg text-center mb-6 text-gray-300">
               Schedule your next 2 months in advance to begin your membership.
             </p>
-            <div className={`flex ${isMobile ? "flex-col space-y-6" : "flex-row-reverse space-x-reverse space-x-6"} max-w-6xl mx-auto`}>
+            <div
+              className={`flex ${
+                isMobile ? "flex-col space-y-6" : "flex-row-reverse space-x-reverse space-x-6"
+              } max-w-6xl mx-auto`}
+            >
               <div className="bg-white text-black p-6 rounded-lg flex flex-col justify-between w-full md:w-1/3">
                 <div>
                   <div className="flex justify-between items-center mb-4">
@@ -592,7 +615,12 @@ const CustomizeMembership = () => {
                   </div>
                   <p className="text-center mb-2">
                     Your {member?.membership} Membership includes a haircut every{" "}
-                    {member?.membership === "Gold" ? "2" : member?.membership === "Silver" ? "3" : "4"} weeks.
+                    {member?.membership === "Gold"
+                      ? "2"
+                      : member?.membership === "Silver"
+                      ? "3"
+                      : "4"}{" "}
+                    weeks.
                   </p>
                   <p className="text-center mb-4">
                     Schedule {requiredAppointments} appointments to complete your membership.
@@ -613,7 +641,8 @@ const CustomizeMembership = () => {
                 </div>
                 <div>
                   <p className="text-gray-600 text-sm text-center">
-                    Note: Use the same email and phone number as your membership ({member?.email}, {member?.phoneNumber}).
+                    Note: Use the same email and phone number as your membership (
+                    {member?.email}, {member?.phoneNumber}).
                   </p>
                 </div>
               </div>
@@ -636,48 +665,75 @@ const CustomizeMembership = () => {
                   frameBorder="0"
                   className="rounded-lg"
                 />
-                <script src="https://embed.acuityscheduling.com/js/embed.js" type="text/javascript" async />
+                <script
+                  src="https://embed.acuityscheduling.com/js/embed.js"
+                  type="text/javascript"
+                  async
+                />
               </div>
             </div>
           </section>
         )}
 
-        {/* Step 5: Review Selections */}
-        {step === 5 && (
+        {/* Step 4: Review Selections */}
+        {step === 4 && (
           <section className="px-4 py-8 max-w-7xl mx-auto">
             <h1 className="text-4xl md:text-5xl text-center mb-4">Review Your Selections</h1>
-            <div className={`flex ${isMobile ? "flex-col space-y-6" : "flex-row space-x-6"} max-w-5xl mx-auto`}>
+            <div
+              className={`flex ${isMobile ? "flex-col space-y-6" : "flex-row space-x-6"} max-w-5xl mx-auto`}
+            >
               <article className="bg-white text-black p-6 rounded-lg shadow-lg w-full">
                 <h2 className="text-xl md:text-2xl font-bold mb-4 text-center">Your Information</h2>
                 <div className="space-y-2">
-                  <p><strong>First Name:</strong> {member?.firstName}</p>
-                  <p><strong>Last Name:</strong> {member?.lastName}</p>
-                  <p><strong>Email:</strong> {member?.email}</p>
-                  <p><strong>Phone Number:</strong> {member?.phoneNumber || "Not provided"}</p>
+                  <p>
+                    <strong>First Name:</strong> {member?.firstName}
+                  </p>
+                  <p>
+                    <strong>Last Name:</strong> {member?.lastName}
+                  </p>
+                  <p>
+                    <strong>Email:</strong> {member?.email}
+                  </p>
+                  <p>
+                    <strong>Phone Number:</strong> {member?.phoneNumber || "Not provided"}
+                  </p>
                 </div>
               </article>
               <article className="bg-white text-black p-6 rounded-lg shadow-lg w-full">
                 <h2 className="text-xl md:text-2xl font-bold mb-4 text-center">Membership Details</h2>
                 <div className="space-y-2">
-                  <p><strong>Haircut:</strong> {formData.haircut.charAt(0).toUpperCase() + formData.haircut.slice(1)}</p>
-                  <p><strong>Drink:</strong> {formData.wantsDrink ? formData.drinkOfChoice : "No drink selected"}</p>
-                  <p><strong>Barber:</strong> {formData.preferredBarber}</p>
-                  <p><strong>Membership Type:</strong> {member?.membership || "Not selected"}</p>
-                  <p><strong>Appointments Booked:</strong> {formData.appointments.length > 0 ? formData.appointments.map((appt) => appt.datetime).join(", ") : "Not booked"}</p>
+                  <p>
+                    <strong>Drink:</strong>{" "}
+                    {formData.wantsDrink ? formData.drinkOfChoice : "No drink selected"}
+                  </p>
+                  <p>
+                    <strong>Barber:</strong> {formData.preferredBarber}
+                  </p>
+                  <p>
+                    <strong>Membership Type:</strong> {member?.membership || "Not selected"}
+                  </p>
+                  <p>
+                    <strong>Appointments Booked:</strong>{" "}
+                    {formData.appointments.length > 0
+                      ? formData.appointments.map((appt) => appt.datetime).join(", ")
+                      : "Not booked"}
+                  </p>
                 </div>
               </article>
             </div>
           </section>
         )}
 
-        {/* Step 6: Checkout */}
-        {step === 6 && (
+        {/* Step 5: Checkout */}
+        {step === 5 && (
           <section className="px-4 py-8 max-w-7xl mx-auto">
             <h1 className="text-4xl md:text-5xl text-center mb-4">Checkout</h1>
             <p className="text-base md:text-lg text-center mb-6 text-gray-300">
               Set up your monthly membership payment
             </p>
-            <div className={`flex ${isMobile ? "flex-col space-y-6" : "flex-row space-x-6"} max-w-5xl mx-auto`}>
+            <div
+              className={`flex ${isMobile ? "flex-col space-y-6" : "flex-row space-x-6"} max-w-5xl mx-auto`}
+            >
               <article className="bg-white text-black p-6 rounded-lg shadow-lg w-full md:w-1/2 flex flex-col justify-between">
                 <div className="space-y-4">
                   <div className="flex justify-center mb-4">
@@ -695,11 +751,11 @@ const CustomizeMembership = () => {
                     <h2 className="font-semibold">Price</h2>
                     <p>
                       {member?.membership === "Gold"
-                        ? "$90/mo"
+                        ? "$100/mo"
                         : member?.membership === "Silver"
-                        ? "$60/mo"
+                        ? "$75/mo"
                         : member?.membership === "Bronze"
-                        ? "$45/mo"
+                        ? "$50/mo"
                         : "N/A"}
                     </p>
                   </div>
@@ -746,11 +802,11 @@ const CustomizeMembership = () => {
             isMobile ? "px-4" : "px-8"
           }`}
         >
-            {step === 1 && (
+          {step === 1 && (
             <button
               onClick={() => navigate("/select-membership")}
-              className="px-6 py-2 rounded-md bg-gray-600 text-white font-semibold hover:bg-gray-700 transition-colors"
-              aria-label="Go to previous step"
+              className="px-6 py-2 rounded-md bg-gray-600 text-white font-semibold hover:bg-gray-700 cursor-pointer transition-colors"
+              aria-label="Go to select membership"
             >
               Back
             </button>
@@ -758,34 +814,32 @@ const CustomizeMembership = () => {
           {step > 1 && (
             <button
               onClick={prevStep}
-              className="px-6 py-2 rounded-md bg-gray-600 text-white font-semibold hover:bg-gray-700 transition-colors"
+              className="px-6 py-2 rounded-md bg-gray-600 text-white font-semibold hover:bg-gray-700 cursor-pointer transition-colors"
               aria-label="Go to previous step"
             >
               Back
             </button>
           )}
-          {step < 6 && (
+          {step < 5 && (
             <button
               onClick={nextStep}
               disabled={
-                (step === 1 && !formData.haircut) ||
-                (step === 2 && isNextDisabled) ||
-                (step === 3 && !formData.preferredBarber) ||
-                (step === 4 && (!formData.preferredBarber || completedAppointments < requiredAppointments)) ||
-                (step === 5 && !formData.preferredBarber)
+                (step === 1 && isNextDisabled) ||
+                (step === 2 && !formData.preferredBarber) ||
+                (step === 3 && (!formData.preferredBarber || completedAppointments < requiredAppointments)) ||
+                (step === 4 && !formData.preferredBarber)
               }
-              className={`px-6 py-2 rounded-md font-semibold text-white transition-colors ml-auto ${
-                (step === 1 && formData.haircut) ||
-                (step === 2 && !isNextDisabled) ||
-                (step === 3 && formData.preferredBarber) ||
-                (step === 4 && formData.preferredBarber && completedAppointments >= requiredAppointments) ||
-                (step === 5 && formData.preferredBarber)
-                  ? "bg-orange-300 hover:bg-orange-500"
-                  : "bg-gray-600 cursor-not-allowed"
+              className={`px-6 py-2 rounded-md font-semibold transition-colors cursor-pointer ml-auto ${
+                (step === 1 && !isNextDisabled) ||
+                (step === 2 && formData.preferredBarber) ||
+                (step === 3 && formData.preferredBarber && completedAppointments >= requiredAppointments) ||
+                (step === 4 && formData.preferredBarber)
+                  ? "bg-white text-black hover:bg-gray-300"
+                  : "bg-gray-800 text-gray-500 cursor-not-allowed"
               }`}
-              aria-label={step === 5 ? "Proceed to payment" : "Proceed to next step"}
+              aria-label={step === 4 ? "Proceed to payment" : "Proceed to next step"}
             >
-              {step === 5 ? "Proceed to Payment" : "Next"}
+              {step === 4 ? "Proceed to Payment" : "Next"}
             </button>
           )}
         </footer>

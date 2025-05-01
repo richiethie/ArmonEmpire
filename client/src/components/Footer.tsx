@@ -15,7 +15,7 @@ const Footer = () => {
           <div className="w-full h-[200px] rounded-lg shadow-2xl shadow-black mb-6">
             <iframe
               className="w-full h-full rounded-lg"
-              src={`https://www.google.com/maps/embed/v1/place?key=${import.meta.env.VITE_GOOGLE_MAPS_API_KEY}&q=21+N+Portland+St+%232C,+Fond+du+Lac,+WI+54935`}
+              src={`https://www.google.com/maps/embed/v1/place?key=${import.meta.env.VITE_GOOGLE_MAPS_API_KEY}&q=759+S+Main+St,+Fond+du+Lac,+WI+54935`}
               allowFullScreen
               loading="lazy"
             ></iframe>
@@ -27,13 +27,13 @@ const Footer = () => {
             <div className="flex items-center space-x-4">
               <img src={ArmonEmpireLogo} alt="Armon Empire Logo" className="h-32 mb-4" />
               <div className="flex flex-col text-center">
-                <p className="text-sm">21 N Portland St #2C</p>
+                <p className="text-sm">759 S Main St</p>
                 <p className="text-sm">Fond du Lac, WI 54935</p>
                 <p>
-                  <a href="tel:+19202667838" className="text-sm">920-266-7838</a>
+                  <a href="tel:+19205391063" className="text-sm">920-539-1063</a>
                 </p>
                 <p>
-                  <a href="mailto:armoncharles23@yahoo.com" className="text-xs">armoncharles23@yahoo.com</a>
+                  <a href="mailto:armonempire@gmail.com" className="text-xs">armonempire@gmail.com</a>
                 </p>
               </div>
             </div>
@@ -83,7 +83,7 @@ const Footer = () => {
         <div className="w-full md:w-1/2 h-[300px] md:h-[300px] lg:h-[400px] rounded-lg shadow-2xl shadow-black">
           <iframe
             className="w-full h-full rounded-lg"
-            src={`https://www.google.com/maps/embed/v1/place?key=${import.meta.env.VITE_GOOGLE_MAPS_API_KEY}&q=21+N+Portland+St+%232C,+Fond+du+Lac,+WI+54935`}
+            src={`https://www.google.com/maps/embed/v1/place?key=${import.meta.env.VITE_GOOGLE_MAPS_API_KEY}&q=759+S+Main+St,+Fond+du+Lac,+WI+54935`}
             allowFullScreen
             loading="lazy"
           ></iframe>
@@ -92,7 +92,19 @@ const Footer = () => {
         {/* Right Side: Footer Content */}
         <div className="w-full md:w-1/2 flex flex-col items-center text-black mt-8 md:mt-0 md:pl-10">
           {/* Logo */}
-          <img src={ArmonEmpireLogo} alt="Armon Empire Logo" className="h-40 mb-6" />
+            <div className="flex items-center space-x-4">
+              <img src={ArmonEmpireLogo} alt="Armon Empire Logo" className="h-40 mb-4" />
+              <div className="flex flex-col text-center">
+                <p className="text-sm">759 S Main St</p>
+                <p className="text-sm">Fond du Lac, WI 54935</p>
+                <p>
+                  <a href="tel:+19202667838" className="text-sm">920-266-7838</a>
+                </p>
+                <p>
+                  <a href="mailto:armoncharles23@yahoo.com" className="text-xs">armoncharles23@yahoo.com</a>
+                </p>
+              </div>
+            </div>
 
           {/* Navigation Links */}
           <div className="flex space-x-4 mb-6">

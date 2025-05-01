@@ -10,7 +10,6 @@ import Loader from "./Loader";
 import "../styles/Loader.css";
 import { barberCalendars } from "@/helpers";
 import { useNavigate } from "react-router-dom";
-import { FaExternalLinkSquareAlt } from "react-icons/fa";
 
 const Members = () => {
     const { user } = useAuth(); // Access current user from the AuthContext
@@ -26,12 +25,13 @@ const Members = () => {
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [buttonLoading, setButtonLoading] = useState<boolean>(false);
     const [checkedIn, setCheckedIn] = useState<boolean>(false);
+    const [photoIdError, setPhotoIdError] = useState<string>("");
 
     const isMobile = useIsMobile();
     const navigate = useNavigate();
 
     const matchedBarberData = barberCalendars.find(
-        barber => barber.name === member?.preferredBarber && barber.type === "member"
+        barber => barber.name === member?.preferredBarber && barber.type === "guest"
     );
 
     // Normalize phone number to international format (e.g., +1234567890)
@@ -57,6 +57,7 @@ const Members = () => {
             setFirstName(member.firstName);
             setLastName(member.lastName);
             setEmail(member.email);
+            setPhotoIdError("");
         }
         setIsEditing(false);
     };
@@ -66,6 +67,7 @@ const Members = () => {
         if (file) {
             setSelectedPhoto(file);
             setSelectedPhotoName(file.name);  // Update the file name as well
+            setPhotoIdError("");
         }
     };    
 
@@ -98,6 +100,11 @@ const Members = () => {
 
     const handleSave = async () => {
         if (!member) return; // Exit early if member is null
+
+        if (drinkOfChoice && !selectedPhotoName) {
+            setPhotoIdError("A Photo ID upload is required to select a drink.");
+            return;
+        }
     
         const token = localStorage.getItem("token");
         const formData = new FormData();
@@ -141,6 +148,7 @@ const Members = () => {
                         photoID: selectedPhoto || prev.photoId, // Ensuring `photoID` is of type `File | null | undefined`
                     };
                 });
+                setPhotoIdError("");
                 setIsEditing(false);
             }
         } catch (error) {
@@ -179,6 +187,7 @@ const Members = () => {
             setLastName(member.lastName || "");
             setEmail(member.email || "");
             setSelectedPhotoName(member?.photoId?.fileName || null);
+            setPhotoIdError("");
 
         }
         console.log("MEMBER", member);
@@ -226,13 +235,13 @@ const Members = () => {
                             <p>Your payment is past due. Please update your payment information. <a href="/manage-membership" className="underline">Manage Membership</a></p>
                         </div>
                     )}
-                    <h1 className="text-5xl md:text-7xl text-center mb-8">Member Center</h1>
+                    <h2 className="text-3xl md:text-5xl font-bold text-center mb-10">Member Center</h2>
 
                     <div className="w-full">
                         {user ? (
                             <div className="flex items-center justify-between px-1 mb-2 md:b-6 text-start">
-                                <h2 className="text-lg md:text-xl font-semibold">Welcome, {member?.firstName}</h2>
-                                <p className="text-lg"><span className="text-orange-300">{member?.membership}</span> member</p>
+                                <h2 className="text-md md:text-xl font-semibold">Welcome, {member?.firstName}</h2>
+                                <p className="text-md"><span className={`${getMembershipColor(member?.membership)} py-[2px]`}>{member?.membership}</span> member</p>
                             </div>
                         ) : (
                             <div className="text-center text-lg text-orange-300">
@@ -263,7 +272,7 @@ const Members = () => {
                                             ) :  ("I'm Here")}
                                         </button>
                                     )}
-                                    <p className="mt-2 text-gray-400">Estimated wait time: ~10 min</p>
+                                    <p className="mt-2 text-gray-400">Estimated wait time: Unavailable</p>
                                 </div>
                                 {/* Appointments */}
                                 <Appointments />
@@ -275,7 +284,7 @@ const Members = () => {
                                         <p>Cosmetology | SMYLEXO</p>
                                     </div>
                                     <button 
-                                        className="mt-6 cursor-pointer bg-orange-300 text-white px-4 py-2 rounded w-full" 
+                                        className="mt-6 cursor-pointer bg-white text-black px-4 py-2 rounded w-full" 
                                         onClick={() => navigate("/schedule")}
                                     >
                                         Book Now
@@ -290,7 +299,7 @@ const Members = () => {
                                 <div className="rounded-lg bg-[#1b1f23] text-white p-2 md:p-8 bg-charcoal">
                                     {/* Book an Appointment Header */}
                                     <h3 className={`text-xl text-center font-bold mb-4 ${isMobile && ("mt-2")}`}>
-                                        Book with <span className="text-orange-300">{member?.preferredBarber || "Your Preferred Barber"}</span>
+                                        Book with <span className="text-gray-300">{member?.preferredBarber || "Your Preferred Barber"}</span>
                                     </h3>
 
                                     {/* Embed Acuity Scheduling iframe */}
@@ -316,7 +325,7 @@ const Members = () => {
                                         src="https://embed.acuityscheduling.com/js/embed.js"
                                         type="text/javascript"
                                     ></script>
-                                    <p className="text-gray-400 text-sm text-center mt-4">
+                                    <p className="text-gray-400 text-xs text-center mt-4">
                                         Note: The form is prefilled with your membership email and phone number ({member?.email}, {member?.phoneNumber}).
                                     </p>
                                 </div>
@@ -348,11 +357,11 @@ const Members = () => {
                                                 )}
                                                 <div className="flex justify-between items-center my-2">
                                                     <p className="text-xl font-semibold">Membership tier: </p>
-                                                    <p className="text-xl font-bold text-orange-300">{member.membership}</p>
+                                                    <p className={`text-xl font-bold ${getMembershipColor(member?.membership)}`}>{member.membership}</p>
                                                 </div>
 
                                                 {isEditing && (
-                                                    <button onClick={() => navigate("/manage-membership")} className="cursor-pointer bg-orange-300 text-white px-4 py-2 rounded w-full">Change Membership</button>
+                                                    <button onClick={() => navigate("/manage-membership")} className="cursor-pointer bg-white text-black px-4 py-2 rounded w-full">Change Membership</button>
                                                 )}
 
                                                 <label className="block mt-6 text-xl mb-2 font-semibold">Preferred Barber:</label>
@@ -364,30 +373,24 @@ const Members = () => {
                                                 >
                                                     <option value="" disabled>Select a Barber</option>
                                                     <option value="Charles Armon">Charles Armon</option>
-                                                    <option value="Jaylen Liedke">Jaylen Liedke</option>
-                                                    <option value="Tyler Rogers">Tyler Rogers</option>
+                                                    {/* <option value="Jaylen Liedke">Jaylen Liedke</option>
+                                                    <option value="Tyler Rogers">Tyler Rogers</option> */}
                                                 </select>
 
                                                 <label className="block mt-6 text-xl mb-2 font-semibold">Drink of Choice:</label>
                                                 <select 
                                                     value={drinkOfChoice} 
-                                                    onChange={(e) => setDrinkOfChoice(e.target.value)} 
+                                                    onChange={(e) => {
+                                                        setDrinkOfChoice(e.target.value);
+                                                        if (!e.target.value) setPhotoIdError("");
+                                                    }} 
                                                     className={`p-2 w-full my-2 rounded bg-gray-800 text-white ${!isEditing && "opacity-30 cursor-not-allowed"}`}
                                                     disabled={!isEditing}
                                                 >
                                                     <option value="" >No Drink Selected</option>
-                                                    <option value="Whiskey">Whiskey</option>
-                                                    <option value="Vodka">Vodka</option>
-                                                    <option value="Rum">Rum</option>
-                                                    <option value="Gin">Gin</option>
-                                                    <option value="Tequila">Tequila</option>
-                                                    <option value="Scotch">Scotch</option>
-                                                    <option value="Bourbon">Bourbon</option>
-                                                    <option value="Brandy">Brandy</option>
-                                                    <option value="Cognac">Cognac</option>
-                                                    <option value="Red Wine">Red Wine</option>
-                                                    <option value="White Wine">White Wine</option>
-                                                    <option value="Champagne">Champagne</option>
+                                                    <option value="Whiskey">Wine</option>
+                                                    <option value="Vodka">Beer</option>
+                                                    <option value="Rum">House's Choice</option>
                                                 </select>
 
                                                 <div className="flex items-center justify-between mt-6 mb-4">
@@ -398,7 +401,7 @@ const Members = () => {
                                                     htmlFor="fileUpload"
                                                     className={`p-2 w-full rounded-md flex items-center justify-center cursor-pointer transition-all ${
                                                         drinkOfChoice && isEditing 
-                                                            ? "bg-orange-300 text-white hover:bg-orange-400" 
+                                                            ? "bg-white text-black hover:bg-gray-300" 
                                                             : "bg-gray-800 text-white opacity-30 cursor-not-allowed"
                                                     }`}
                                                 >
@@ -406,14 +409,16 @@ const Members = () => {
                                                 </label>
                                                 <input id="fileUpload" type="file" accept="image/*" capture="environment" onChange={handleFileUpload} className="hidden" disabled={!isEditing} />
                                                 {selectedPhotoName ? (<p className="mt-2 text-sm text-gray-500">Selected: {selectedPhotoName}</p>) : (<p className="mt-2 ml-1 text-sm text-gray-700">No Photo ID has been uploaded.</p>)}
-
+                                                {photoIdError && (
+                                                    <p className="mt-2 text-sm text-red-500">{photoIdError}</p>
+                                                )}
                                                 {isEditing ? (
                                                     <div className="flex gap-2 mt-6">
                                                         <button
                                                             className={`px-4 py-2 rounded w-1/2 transition-all ${
                                                                 Boolean(drinkOfChoice)
-                                                                    ? "bg-orange-300 text-white cursor-pointer hover:bg-orange-400"
-                                                                    : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                                                                    ? "bg-white text-black cursor-pointer hover:bg-gray-300"
+                                                                    : "bg-gray-800 text-gray-500 cursor-not-allowed"
                                                             }`}
                                                             onClick={handleSave}
                                                             disabled={!selectedPhotoName} 
@@ -429,7 +434,7 @@ const Members = () => {
                                                     </div>
                                                 ) : (
                                                     <button 
-                                                        className="mt-6 cursor-pointer bg-orange-300 text-white px-4 py-2 rounded w-full" 
+                                                        className="mt-6 cursor-pointer bg-white text-black px-4 py-2 rounded w-full" 
                                                         onClick={() => setIsEditing(true)}
                                                     >
                                                         Edit
@@ -450,6 +455,15 @@ const Members = () => {
             <Footer />
         </>
     );
+};
+
+const getMembershipColor = (tier: string | undefined) => {
+    switch (tier) {
+        case "Gold": return "text-orange-300";
+        case "Silver": return "text-gray-400";
+        case "Bronze": return "text-orange-800";
+        default: return "text-green-500";
+    }
 };
 
 export default Members;

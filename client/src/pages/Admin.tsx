@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
 import MemberHeader from "../components/MemberHeader";
 import { User } from "@/types/User";
@@ -6,9 +6,11 @@ import { useIsMobile } from "@/context/MobileContext";
 
 const Admin = () => {
     const [members, setMembers] = useState<User[]>([]);
+    const [filteredMembers, setFilteredMembers] = useState<User[]>([]);
+    const [searchTerm, setSearchTerm] = useState("");
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
-    const [selectedMember, setSelectedMember] = useState<User | null>(null); // State for modal
+    const [selectedMember, setSelectedMember] = useState<User | null>(null);
 
     const isMobile = useIsMobile();
 
@@ -20,6 +22,7 @@ const Admin = () => {
                     headers: { Authorization: `Bearer ${token}` },
                 });
                 setMembers(response.data);
+                setFilteredMembers(response.data);
                 setLoading(false);
             } catch (err) {
                 setError("Failed to fetch members.");
@@ -30,10 +33,19 @@ const Admin = () => {
         fetchMembers();
     }, []);
 
-    // New function for handling verification
+    useEffect(() => {
+        setFilteredMembers(
+            members.filter(member =>
+                `${member.firstName} ${member.lastName}`
+                    .toLowerCase()
+                    .includes(searchTerm.toLowerCase())
+            )
+        );
+    }, [searchTerm, members]);
+
     const handleVerification = async (isVerified: boolean) => {
         if (!selectedMember) return;
-        
+
         const token = localStorage.getItem("token");
         try {
             const response = await axios.patch(
@@ -42,7 +54,6 @@ const Admin = () => {
                 { headers: { Authorization: `Bearer ${token}` } }
             );
 
-            // Optionally update the local members list to reflect the new verified status:
             setMembers((prevMembers) =>
                 prevMembers.map((member) =>
                     member._id === selectedMember._id
@@ -51,11 +62,9 @@ const Admin = () => {
                 )
             );
 
-            // Close the modal once the update is successful.
             setSelectedMember(null);
         } catch (error) {
             console.error("Error updating verification:", error);
-            // Optionally set error state or notify the user.
         }
     };
 
@@ -65,14 +74,24 @@ const Admin = () => {
                 <div className="min-h-screen text-black bg-gray-100">
                     <MemberHeader />
                     <div className="w-full mx-auto p-6 mt-20">
-                        <h1 className="text-4xl md:text-6xl text-black mb-6 text-center">Admin Center</h1>
+                        <h2 className="text-4xl md:text-6xl text-black font-bold mb-6 text-center">Admin Center</h2>
+
+                        <div className="mb-6">
+                            <input
+                                type="text"
+                                placeholder="Search members by name..."
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                className="w-full p-3 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-orange-300"
+                            />
+                        </div>
 
                         {loading && <p className="text-center text-gray-500">Loading members...</p>}
                         {error && <p className="text-center text-red-500">{error}</p>}
 
                         {!loading && !error && (
                             <>
-                                {members.map((member) => (
+                                {filteredMembers.map((member) => (
                                     <div className="flex flex-col p-4 bg-white rounded-lg shadow-md mb-4" key={member._id}>
                                         <div className="flex items-center justify-between w-full">
                                             <div>
@@ -82,6 +101,17 @@ const Admin = () => {
                                                     </span>
                                                 )}
                                                 <span className="font-medium">{member.firstName} {member.lastName}</span>
+                                                {member.paymentStatus === "past_due" && (
+                                                    <span className="px-2 py-1 text-xs font-semibold bg-red-500 text-white rounded-lg ml-2">
+                                                        Past Due
+                                                    </span>
+                                                )}
+                                                {member.paymentStatus === "cancelled" && (
+                                                    <span className="px-2 py-1 text-xs font-semibold bg-red-500 text-white rounded-lg ml-2">
+                                                        Cancelled
+                                                    </span>
+                                                )}
+                                                
                                             </div>
                                             <span className={`px-3 py-1 font-bold rounded-lg ${getMembershipColor(member.membership)}`}>
                                                 {member.membership}
@@ -141,13 +171,22 @@ const Admin = () => {
                             </>
                         )}
                     </div>
-
                 </div>
             ) : (
                 <div className="min-h-screen text-black bg-gray-100">
                     <MemberHeader />
                     <div className="w-full mx-auto p-6 mt-20">
-                        <h1 className="text-4xl md:text-6xl text-black mb-6 text-center">Admin Center</h1>
+                        <h2 className="text-4xl md:text-6xl text-black font-bold mb-6 text-center">Admin Center</h2>
+
+                        <div className="mb-6">
+                            <input
+                                type="text"
+                                placeholder="Search members by name..."
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                className="w-full p-3 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-orange-300"
+                            />
+                        </div>
 
                         {loading && <p className="text-center text-gray-500">Loading members...</p>}
                         {error && <p className="text-center text-red-500">{error}</p>}
@@ -168,7 +207,7 @@ const Admin = () => {
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {members.map((member) => (
+                                        {filteredMembers.map((member) => (
                                             <tr key={member._id} className="border-t text-nowrap">
                                                 <td className="p-4 flex items-center space-x-3">
                                                     {member.isAdmin && (
@@ -217,10 +256,9 @@ const Admin = () => {
                             </div>
                         )}
                     </div>
-
                 </div>
             )}
-            {/* Modal Component */}
+
             {selectedMember && (
                 <div className="fixed inset-0 flex items-center justify-center bg-black/80">
                     <div className="bg-white p-6 rounded-lg shadow-lg relative w-96">

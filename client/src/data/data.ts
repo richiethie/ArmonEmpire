@@ -13,7 +13,7 @@ export const haircuts = [
 ];
 
 export const barbers = [
-    { id: "CharlesArmon", name: "Charles Armon", image: Charles },
-    { id: "JaylenLiedke", name: "Jaylen Liedke", image: Jaylen },
-    { id: "TylerRogers", name: "Tyler Rogers", image: Tyler },
+    { id: "CharlesArmon", name: "Charles Armon", title: "Master Barber", image: Charles },
+    // { id: "JaylenLiedke", name: "Jaylen Liedke", title: "Barber", image: Jaylen },
+    // { id: "TylerRogers", name: "Tyler Rogers", title: "Apprentice Barber", image: Tyler },
 ];

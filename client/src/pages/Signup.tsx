@@ -169,7 +169,7 @@ const Signup = () => {
             {/* Submit Button */}
             <button
               type="submit"
-              className="w-full bg-orange-300 cursor-pointer text-black font-semibold py-3 rounded-md hover:bg-orange-500 transition"
+              className="w-full bg-white cursor-pointer text-black font-semibold py-3 rounded-md hover:bg-gray-300 transition"
               disabled={loading}
             >
               {loading ? "Signing Up..." : "Sign Up"}
@@ -179,7 +179,7 @@ const Signup = () => {
           {/* Login Link */}
           <p className="text-center text-sm mt-4">
             Already have an account?{" "}
-            <a href="/login" className="text-orange-300 hover:underline">
+            <a href="/login" className="text-gray-300 underline">
               Sign in
             </a>
           </p>

@@ -19,6 +19,7 @@ import ManageMembership from "./pages/ManageMembership";
 import ChangeMembership from "./pages/ChangeMembership";
 import UpdatePaymentMethod from "./pages/UpdatePaymentMethod";
 import Gallery from "./pages/Gallery";
+import Location from "./pages/Location";
 
 function App() {
 
@@ -37,6 +38,7 @@ function App() {
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/gallery" element={<Gallery />} />
+            <Route path="/location" element={<Location />} />
 
             {/* Protected Routes */}
             <Route

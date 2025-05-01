@@ -11,9 +11,9 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
 const priceMap = {
-    Gold: "price_1QtzuJKwDDaoYcMewTLSjUxU",
-    Silver: "price_1QvAJ4KwDDaoYcMe8hOJQQHO",
-    Bronze: "price_1QvAJPKwDDaoYcMefuHEuthL",
+    Gold: "price_1RJoLoKwDDaoYcMenjErO10l",
+    Silver: "price_1RJoL9KwDDaoYcMeJLPazwmR",
+    Bronze: "price_1RJoKeKwDDaoYcMer5Fh5Rh1",
 };
 
 router.post("/create-payment-intent", async (req, res) => {

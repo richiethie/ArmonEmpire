@@ -91,17 +91,17 @@ const Login = () => {
             <div className="flex items-center justify-between">
               <a
                 href="/forgot-password"
-                className="text-sm text-orange-300 hover:underline flex items-center justify-center"
+                className="text-sm text-gray-300 underline flex items-center justify-center"
               >
                 Forgot password?
               </a>
-              <FaExternalLinkAlt className="text-orange-300" />
+              <FaExternalLinkAlt className="text-gray-300" />
             </div>
 
             {/* Submit Button */}
             <button
               type="submit"
-              className="w-full bg-orange-300 text-black font-semibold py-3 rounded-md hover:bg-orange-500 transition"
+              className="w-full bg-white text-black font-semibold py-3 rounded-md hover:bg-gray-300 transition"
               disabled={loading}
             >
               {loading ? "Signing In..." : "Sign In"}
@@ -111,7 +111,7 @@ const Login = () => {
           {/* Signup Link */}
           <p className="text-center text-sm mt-4">
             Don't have an account?{" "}
-            <a href="/signup" className="text-orange-300 hover:underline">
+            <a href="/signup" className="text-gray-300 font-semibold underline">
               Sign up
             </a>
           </p>

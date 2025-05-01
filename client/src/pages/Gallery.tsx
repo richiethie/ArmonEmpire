@@ -61,7 +61,7 @@ const Gallery: React.FC = () => {
         <div className="bg-black text-white py-12 px-4 md:px-8 min-h-screen">
         {/* Gallery Header */}
         <div className="text-center my-20">
-            <h2 className="text-3xl md:text-4xl font-bold mb-2">Our Gallery</h2>
+            <h2 className="text-4xl md:text-5xl font-bold mb-2">Our Gallery</h2>
             <div className="w-24 h-1 bg-white mx-auto"></div>
             <p className="mt-4 text-gray-400 max-w-2xl mx-auto">
             A showcase of our finest haircuts, beard trims, and styling work. Every cut tells a story.
