@@ -28,7 +28,7 @@ interface FormData {
 const CustomizeMembership = () => {
   const [step, setStep] = useState<number>(1);
   const [member, setMember] = useState<User | null>(null);
-  const [completedAppointments, setCompletedAppointments] = useState<number>(4);
+  const [completedAppointments, setCompletedAppointments] = useState<number>(0);
   const isMobile = useIsMobile();
   const navigate = useNavigate();
 
@@ -111,11 +111,6 @@ const CustomizeMembership = () => {
       const formDataToSend = new FormData();
       formDataToSend.append("preferredBarber", formData.preferredBarber);
       formDataToSend.append("drinkOfChoice", formData.drinkOfChoice);
-  
-      // If you actually want to update name/email too:
-      formDataToSend.append("firstName", member?.firstName || "");
-      formDataToSend.append("lastName", member?.lastName || "");
-      formDataToSend.append("email", member?.email || "");
   
       // 2) Multer is configured as single('photoID'), so:
       if (formData.photoID) {
