@@ -2,9 +2,9 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import { Pagination, Navigation } from "swiper/modules";
 import { Box, HStack } from "@chakra-ui/react";
 import 'swiper/swiper-bundle.css'; // Import Swiper styles
-import Charles from "../assets/img/Charles.jpg"
-import Jaylen from "../assets/img/Jaylen.jpg"
-import Tyler from "../assets/img/Tyler.jpg"
+import Charles from "../assets/img/Charles2.jpeg"
+import Jaylen from "../assets/img/Jaylen2.1.jpg"
+import Trish from "../assets/img/Trish2.2.jpg"
 import { useIsMobile } from '@/context/MobileContext';
 import { Link } from "react-router-dom";
 
@@ -22,17 +22,17 @@ const teamMembers = [
     description: "Nothing is predestined, the obsticles of your past can become the gateways that lead to new beginnings. With Friends and love you can accomplish anything.",
   },
   {
-    image: Tyler,
-    title: "Barber Apprentice",
-    name: "TYLER ROGERS",
+    image: Trish,
+    title: "Barber",
+    name: "PATRICIA WARE",
     description: "Its a constant quest to try to be a better today than yesterday and better tomorrow than you were the day before.",
   },
-  {
-    image: Charles,
-    title: "Cosmetologist",
-    name: "AUDREY MCCARTHY",
-    description: "Blessed are the cosmetologists, for they bring out the beauty in others.",
-  },
+  // {
+  //   image: Charles,
+  //   title: "Cosmetologist",
+  //   name: "AUDREY MCCARTHY",
+  //   description: "Blessed are the cosmetologists, for they bring out the beauty in others.",
+  // },
 ];
 
 const Team = () => {
@@ -59,7 +59,7 @@ const Team = () => {
                 <img
                   src={member.image}
                   alt={member.name}
-                  className="h-[12rem] w-full mx-auto object-cover mb-4 rounded-lg"
+                  className="h-[15rem] w-full mx-auto object-cover object-top mb-4 rounded-lg"
                 />
                 <div className="flex flex-col px-4">
                   <div className="flex flex-col items-center mb-4">
@@ -71,7 +71,7 @@ const Team = () => {
                       Schedule Now
                     </button>
                   </Link>
-                  <p className="text-lg text-center text-gray-300">{member.description}</p>
+                  <p className="text-sm text-center text-gray-300">{member.description}</p>
                 </div>
               </div>
             ))}
@@ -104,7 +104,7 @@ const Team = () => {
               <img
                 src={member.image}
                 alt={member.name}
-                className="h-[30rem] w-full mx-auto object-cover mb-4"
+                className="h-[30rem] w-full mx-auto object-cover object-top mb-4"
               />
               <div className="flex flex-col px-4">
                 <div className="flex justify-between">
