@@ -2,7 +2,6 @@ const express = require("express");
 const Stripe = require("stripe");
 const dotenv = require("dotenv");
 const User = require("../models/User");
-const bodyParser = require('body-parser');
 
 dotenv.config();
 
@@ -463,16 +462,15 @@ router.post("/setup-intent", async (req, res) => {
 
 router.post(
     "/webhook",
-    bodyParser.raw({ type: 'application/json' }),
     async (req, res) => {
       const sig = req.headers["stripe-signature"];
       let event;
       // Log the event payload for debugging
-      console.log("Received webhook event:", req.body.toString());
+      console.log("Received webhook event:", req.rawBody.toString());
   
       // Verify the webhook signature using the raw body captured globally (using the verify callback)
       try {
-        event = stripe.webhooks.constructEvent(req.body, sig, endpointSecret);
+        event = stripe.webhooks.constructEvent(req.rawBody, sig, endpointSecret);
       } catch (err) {
         console.error("Webhook signature verification failed:", err.message);
         return res.status(400).send(`Webhook Error: ${err.message}`);
