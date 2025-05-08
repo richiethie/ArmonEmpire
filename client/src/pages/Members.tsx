@@ -223,6 +223,26 @@ const Members = () => {
         );
     }
 
+    if (member?.stripeCustomerId === null) {
+
+        return (
+            <>
+                {isLoading && <Loader />}
+                <MemberHeader />
+                <div className="bg-black text-white min-h-screen w-full py-8 flex flex-col items-center justify-center">
+                    <p className="font-bold text-lg">Please complete set membership set up.</p>
+                    <button 
+                        className="mt-6 cursor-pointer bg-orange-300 text-white px-4 py-2 rounded w-[60%]" 
+                        onClick={() => navigate("/select-membership")}
+                    >
+                        Set up Membership
+                    </button>
+                </div>
+                <Footer />
+            </>
+        );
+    }
+
     return (
         <>
             {isLoading && <Loader />}
