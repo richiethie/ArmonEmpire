@@ -559,7 +559,7 @@ router.post(
       }
   
       // Respond to Stripe to acknowledge receipt of the event
-      res.json({ received: true });
+      res.status(200).json({ received: true });
 });
 
 

@@ -118,6 +118,11 @@ const Admin = () => {
                                             </span>
                                         </div>
                                         <div className="p-3">
+                                            {member.stripeCustomerId === null && (
+                                                <div className="p-3 rounded-md bg-red-300 mb-2">
+                                                    <p className="text-xs text-center">Stripe membership has not been activated.</p>
+                                                </div>
+                                            )}
                                             <ul className="space-y-2">
                                                 <li className="flex text-black text-[12px]">
                                                     <span className="text-gray-500">Phone •&nbsp;</span>
@@ -217,6 +222,11 @@ const Admin = () => {
                                                     )}
                                                     <span className="font-medium">{member.firstName} {member.lastName}</span>
                                                 </td>
+                                                {member.stripeCustomerId === null && (
+                                                    <div className="p-2 rounded-md bg-red-300 mb-2">
+                                                        <p className="text-xs text-center">Stripe membership has not been activated.</p>
+                                                    </div>
+                                                )}
                                                 <td className="p-4 text-center">
                                                     <span className={`px-3 py-1 font-bold rounded-lg ${getMembershipColor(member.membership)}`}>
                                                         {member.membership}
@@ -275,7 +285,7 @@ const Admin = () => {
                             <img
                                 src={`data:${selectedMember.photoId?.contentType};base64,${selectedMember.photoId?.data}`}
                                 alt="ID"
-                                className="w-72 h-48 object-cover rounded-md"
+                                className="w-72 h-full object-fit rounded-md"
                             />
                         </div>
                         <div className="mt-4 flex justify-between px-6">
