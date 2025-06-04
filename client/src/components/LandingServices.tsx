@@ -1,4 +1,5 @@
 import LandingServicesPhoto from "../assets/img/LandingServicesPhoto.jpg"; 
+import Team from "../assets/img/Team.jpeg";
 import { useIsMobile } from '@/context/MobileContext';
 import { Link } from "react-router-dom";
 
@@ -11,7 +12,7 @@ const LandingServices = () => {
                 {/* Mobile: Image with Fade at Bottom */}
                 <div className="relative w-full">
                     <img
-                        src={LandingServicesPhoto}
+                        src={Team}
                         alt="Landing Services"
                         className="w-full h-[30rem] object-cover"
                     />

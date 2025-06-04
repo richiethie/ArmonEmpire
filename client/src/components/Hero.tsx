@@ -1,5 +1,5 @@
 import SampleLandingVideo from "../assets/video/SampleLandingVideo.mp4";
-import VerticalHero from "../assets/video/vertical-hero.mp4";
+import ArmonVideo from "../assets/video/ArmonVideo.mp4";
 import ArmonEmpireLogo from "../assets/img/ArmonEmpireLogo.png";
 import { useIsMobile } from '@/context/MobileContext';
 import { Link } from "react-router-dom";
@@ -18,12 +18,12 @@ const Hero = () => {
           muted
           playsInline
         >
-          <source src={VerticalHero} type="video/mp4" />
+          <source src={ArmonVideo} type="video/mp4" />
           Your browser does not support the video tag.
         </video>
 
         {/* Dark Overlay for Mobile */}
-        <div className="absolute top-0 left-0 w-full h-full bg-black opacity-50"></div>
+        <div className="absolute top-0 left-0 w-full h-full bg-black opacity-70"></div>
 
         {/* Mobile Logo and Button */}
         <div className="relative z-5 flex flex-col justify-center items-center text-white">
