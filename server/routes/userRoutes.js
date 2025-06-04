@@ -2,6 +2,7 @@
 const express = require("express");
 const router = express.Router();
 const User = require("../models/User"); // Import your User model
+const Appointment = require("../models/Appointment");
 const jwt = require("jsonwebtoken");
 const dotenv = require("dotenv");
 const multer = require('multer');
@@ -45,31 +46,56 @@ router.get("/", authenticateJWT, async (req, res) => {
 
 router.get("/members", async (req, res) => {
   try {
-    const members = await User.find();
+    const members = await User.aggregate([
+      {
+        $lookup: {
+          from: Appointment.collection.name,
+          localField: "_id",
+          foreignField: "userId",
+          as: "appointments",
+        },
+      },
+      {
+        $addFields: {
+          pastAppointments: {
+            $filter: {
+              input: "$appointments",
+              as: "appt",
+              cond: {
+                $lt: ["$$appt.datetime", new Date()] // only appointments before now
+              }
+            },
+          },
+        },
+      },
+      {
+        $addFields: {
+          lastAppointmentDate: { $max: "$pastAppointments.datetime" }, // latest past appt
+        },
+      },
+    ]);
 
-    // Convert photoId to Base64 safely
     const membersWithBase64Images = members.map((member) => {
       let base64PhotoId = null;
 
       if (member.photoId && member.photoId.data) {
         try {
-          // Ensure it's a Buffer before converting
           base64PhotoId = {
             contentType: member.photoId.contentType,
             data: Buffer.isBuffer(member.photoId.data)
               ? member.photoId.data.toString("base64")
-              : null, // Return null if data is not a Buffer
+              : null,
             fileName: member.photoId.fileName,
           };
         } catch (error) {
           console.error("Error processing photoId for user:", member.email, error);
-          base64PhotoId = null; // Ensure it doesn't break the response
+          base64PhotoId = null;
         }
       }
 
       return {
-        ...member._doc,
-        photoId: base64PhotoId, // Return null if photoId was invalid
+        ...member,
+        photoId: base64PhotoId,
       };
     });
 

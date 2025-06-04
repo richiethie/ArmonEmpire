@@ -24,4 +24,5 @@ export interface User {
     stripeCustomerId: string;
     subscriptionId: string;
     paymentStatus: "active" | "past_due" | "cancelled";
+    lastAppointmentDate?: string | null;
 }

@@ -11,6 +11,8 @@ const Admin = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
     const [selectedMember, setSelectedMember] = useState<User | null>(null);
+    const [selectedStatus, setSelectedStatus] = useState("All");
+
 
     const isMobile = useIsMobile();
 
@@ -42,6 +44,11 @@ const Admin = () => {
             )
         );
     }, [searchTerm, members]);
+
+    useEffect(() => {
+        setFilteredMembers(members);
+    }, [members]);
+
 
     const handleVerification = async (isVerified: boolean) => {
         if (!selectedMember) return;
@@ -84,6 +91,37 @@ const Admin = () => {
                                 onChange={(e) => setSearchTerm(e.target.value)}
                                 className="w-full p-3 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-orange-300"
                             />
+                            <div className="flex space-x-2 my-2 pb-2 px-2 max-w-[100%] overflow-x-auto">
+                                {['All', 'Active', 'Cancelled', 'Past Due', 'Incomplete'].map((status) => (
+                                    <button
+                                    key={status}
+                                    onClick={() => {
+                                        switch (status) {
+                                        case 'Active':
+                                            setFilteredMembers(members.filter(member => member.paymentStatus === 'active'));
+                                            break;
+                                        case 'Cancelled':
+                                            setFilteredMembers(members.filter(member => member.paymentStatus === 'cancelled'));
+                                            break;
+                                        case 'Past Due':
+                                            setFilteredMembers(members.filter(member => member.paymentStatus === 'past_due'));
+                                            break;
+                                        case 'Incomplete':
+                                            setFilteredMembers(members.filter(member => member.stripeCustomerId === null));
+                                            break;
+                                        default:
+                                            setFilteredMembers(members);
+                                        }
+                                        setSelectedStatus(status);
+                                    }}
+                                    className={`px-3 py-1 rounded-md text-xs cursor-pointer text-nowrap ${
+                                        selectedStatus === status ? 'bg-black text-white' : 'bg-gray-300 text-white hover:bg-orange-400'
+                                    }`}
+                                    >
+                                    {status}
+                                    </button>
+                                ))}
+                            </div>
                         </div>
 
                         {loading && <p className="text-center text-gray-500">Loading members...</p>}
@@ -120,7 +158,7 @@ const Admin = () => {
                                         <div className="p-3">
                                             {member.stripeCustomerId === null && (
                                                 <div className="p-3 rounded-md bg-red-300 mb-2">
-                                                    <p className="text-xs text-center">Stripe membership has not been activated.</p>
+                                                    <p className="text-xs text-center">No Stripe membership. Incomplete payment.</p>
                                                 </div>
                                             )}
                                             <ul className="space-y-2">
@@ -133,8 +171,8 @@ const Admin = () => {
                                                     <p>{member.email}</p>
                                                 </li>
                                                 <li className="flex text-black text-[12px]">
-                                                    <span className="text-gray-500">Appointments •&nbsp;</span>
-                                                    <p>{member.appointments.length}</p>
+                                                    <span className="text-gray-500">Last Appointment •&nbsp;</span>
+                                                    <p>{member.lastAppointmentDate ? new Date(member.lastAppointmentDate).toLocaleDateString() : "No appointments"}</p>
                                                 </li>
                                                 <li className="flex items-center text-black text-[12px]">
                                                     <span className="text-gray-500">Photo ID •&nbsp;</span>
