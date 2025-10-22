@@ -5,6 +5,7 @@ import 'swiper/swiper-bundle.css'; // Import Swiper styles
 import Charles from "../assets/img/Charles2.jpeg"
 import Jaylen from "../assets/img/Jaylen2.1.jpg"
 import Trish from "../assets/img/Trish2.2.jpg"
+import Tyler from "../assets/img/Tyler.jpg"
 import { useIsMobile } from '@/context/MobileContext';
 import { Link } from "react-router-dom";
 
@@ -27,10 +28,16 @@ const teamMembers = [
     name: "PATRICIA WARE",
     description: "Its a constant quest to try to be a better today than yesterday and better tomorrow than you were the day before.",
   },
+  {
+    image: Tyler,
+    title: "Barber",
+    name: "TYLER ROGERS",
+    description: "Every cut tells a story — of patience, craft, and pride. What starts as skill becomes art when you pour your heart into every detail.",
+  },
   // {
-  //   image: Charles,
-  //   title: "Cosmetologist",
-  //   name: "AUDREY MCCARTHY",
+  //   image: Tyler,
+  //   title: "Barber",
+  //   name: "TYLER ROGERS",
   //   description: "Blessed are the cosmetologists, for they bring out the beauty in others.",
   // },
 ];
