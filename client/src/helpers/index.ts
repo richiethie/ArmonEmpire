@@ -1,6 +1,7 @@
 import Charles from "../assets/img/Charles2.1.jpg";
 import Jaylen from "../assets/img/Jaylen2.1.jpg";
 import Trish from "../assets/img/Trish2.1.jpg";
+import Tyler from "../assets/img/Tyler.jpg";
 
 export const barberCalendars = [
     {
@@ -17,13 +18,13 @@ export const barberCalendars = [
         calendarId: "8900728",
         img: Jaylen,
     },
-    // {
-    //     type: "guest",
-    //     name: "Tyler Rogers",
-    //     title: "Apprentice Barber",
-    //     calendarId: "11293551",
-    //     img: Tyler,
-    // },
+    {
+        type: "guest",
+        name: "Tyler Rogers",
+        title: "Barber",
+        calendarId: "11293551",
+        img: Tyler,
+    },
     {
         type: "guest",
         name: "Patricia Ware",
