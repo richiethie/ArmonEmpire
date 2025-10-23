@@ -1,7 +1,7 @@
 import Charles from "../assets/img/Charles2.1.jpg";
 import Jaylen from "../assets/img/Jaylen2.1.jpg";
 import Trish from "../assets/img/Trish2.1.jpg";
-import Tyler from "../assets/img/Tyler.jpg";
+import Tyler from "../assets/img/Tyler2.jpg";
 
 export const barberCalendars = [
     {
