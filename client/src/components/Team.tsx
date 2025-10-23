@@ -5,7 +5,7 @@ import 'swiper/swiper-bundle.css'; // Import Swiper styles
 import Charles from "../assets/img/Charles2.jpeg"
 import Jaylen from "../assets/img/Jaylen2.1.jpg"
 import Trish from "../assets/img/Trish2.2.jpg"
-import Tyler from "../assets/img/Tyler2.jpg"
+import Tyler from "../assets/img/Tyler2.1.jpg"
 import { useIsMobile } from '@/context/MobileContext';
 import { Link } from "react-router-dom";
 
